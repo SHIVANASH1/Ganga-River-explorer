@@ -201,6 +201,30 @@
 </style>
 </head>
 <body>
+  <div id="loginOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;z-index:99999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:#111;padding:40px;border-radius:12px;border:1px solid #333;text-align:center;min-width:300px;">
+    <h2 style="color:#4fc3f7;margin-bottom:24px;">🌊 Ganga Explorer</h2>
+    <input id="uid" type="text" placeholder="Username" style="display:block;width:100%;padding:10px;margin-bottom:12px;border-radius:6px;border:1px solid #444;background:#1a1a1a;color:#fff;font-size:15px;box-sizing:border-box;">
+    <input id="pwd" type="password" placeholder="Password" style="display:block;width:100%;padding:10px;margin-bottom:16px;border-radius:6px;border:1px solid #444;background:#1a1a1a;color:#fff;font-size:15px;box-sizing:border-box;">
+    <button onclick="checkLogin()" style="background:#4fc3f7;color:#000;border:none;padding:10px 32px;border-radius:6px;font-size:15px;cursor:pointer;width:100%;">Login</button>
+    <p id="err" style="color:#ff5555;margin-top:12px;display:none;">❌ Wrong username or password!</p>
+  </div>
+</div>
+
+<script>
+function checkLogin() {
+  var u = document.getElementById('uid').value;
+  var p = document.getElementById('pwd').value;
+  if (u === 'ankesh' && p === 'test') {
+    document.getElementById('loginOverlay').style.display = 'none';
+  } else {
+    document.getElementById('err').style.display = 'block';
+  }
+}
+document.getElementById('pwd').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') checkLogin();
+});
+</script>
 
 <!-- HEADER -->
 <header class="site-header">
