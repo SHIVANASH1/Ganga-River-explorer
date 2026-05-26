@@ -122,7 +122,113 @@
   .footer-brand { font-family: var(--font-serif); font-size: 0.9rem; color: var(--muted); }
   .footer-brand a { color: var(--accent2); text-decoration: none; font-weight: 600; }
   .footer-note { font-size: 0.6rem; color: var(--muted); letter-spacing: 1px; }
-  @media(max-width:600px) { .section { padding: 1.2rem; } .poll-loc { min-width: 65px; font-size: 0.6rem; } .depth-loc { min-width: 90px; } .kpi-divider { display: none; } }
+
+  /* ── DATE EXPLORER TAB STYLES ── */
+  .picker-zone {
+    background: rgba(0,10,20,0.9);
+    border-bottom: 1px solid var(--border);
+    padding: 1.2rem 2rem;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 1rem;
+  }
+  .picker-label { font-size: .6rem; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; white-space: nowrap; }
+  .date-input-wrap {
+    display: flex; align-items: center; gap: .5rem;
+    background: rgba(0,200,255,0.06);
+    border: 1.5px solid rgba(0,200,255,0.3);
+    border-radius: 8px; padding: .5rem 1rem;
+    transition: border-color .2s;
+  }
+  .date-input-wrap:focus-within { border-color: var(--accent); }
+  .date-input-wrap span { font-size: 1rem; }
+  input[type=date] {
+    background: transparent; border: none; outline: none;
+    color: var(--accent); font-family: var(--font-mono); font-size: .8rem;
+    cursor: pointer; min-width: 130px;
+  }
+  input[type=date]::-webkit-calendar-picker-indicator { filter: invert(1) sepia(1) saturate(5) hue-rotate(175deg); cursor: pointer; }
+  .presets { display: flex; gap: .35rem; flex-wrap: wrap; }
+  .preset-btn {
+    background: rgba(0,200,255,0.07);
+    border: 1px solid rgba(0,200,255,0.2);
+    color: rgba(0,200,255,0.75);
+    padding: .28rem .65rem; border-radius: 4px;
+    font-family: var(--font-mono); font-size: .58rem;
+    cursor: pointer; letter-spacing: .5px; transition: all .15s; white-space: nowrap;
+  }
+  .preset-btn:hover { background: rgba(0,200,255,0.18); color: var(--accent); }
+  #seasonTag {
+    font-size: .62rem; padding: .3rem .9rem; border-radius: 20px;
+    font-family: var(--font-mono); letter-spacing: 1px;
+    border: 1px solid transparent; transition: all .3s; white-space: nowrap;
+  }
+  .load-btn {
+    margin-left: auto;
+    background: linear-gradient(135deg, #00c8ff, #007ba0);
+    color: #000; border: none; padding: .5rem 1.3rem; border-radius: 7px;
+    font-family: var(--font-mono); font-size: .7rem; font-weight: 700;
+    cursor: pointer; letter-spacing: 1px; transition: opacity .2s; white-space: nowrap;
+  }
+  .load-btn:hover { opacity: .85; }
+  .load-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .de-main { max-width: 1200px; margin: 0 auto; padding: 1.5rem 0 0 0; }
+  .empty-state { text-align: center; padding: 4rem 2rem; }
+  .empty-icon { font-size: 3.5rem; margin-bottom: 1rem; display: block; }
+  .empty-title { font-family: var(--font-serif); font-size: 1.4rem; color: #e8f6ff; font-weight: 300; margin-bottom: .5rem; }
+  .empty-sub { font-size: .68rem; color: var(--muted); line-height: 1.8; max-width: 400px; margin: 0 auto; }
+  .loading-state { text-align: center; padding: 3rem 2rem; }
+  .loading-river { width: 200px; height: 4px; background: rgba(0,200,255,0.08); border-radius: 2px; margin: 1.2rem auto; overflow: hidden; }
+  .loading-flow { height: 100%; background: linear-gradient(90deg, transparent, var(--accent), transparent); border-radius: 2px; animation: flow 1.2s ease-in-out infinite; width: 60%; }
+  @keyframes flow { 0%{transform:translateX(-100%);} 100%{transform:translateX(250%);} }
+  .loading-msg { font-size: .68rem; color: var(--accent); letter-spacing: 2px; animation: pulse .8s ease-in-out infinite alternate; }
+  @keyframes pulse { from{opacity:.5;} to{opacity:1;} }
+  .loading-steps { margin-top: .8rem; font-size: .6rem; color: var(--muted); line-height: 2; }
+  #de-resultPanel { display: none; }
+  .result-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .result-date { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 300; color: #e8f6ff; }
+  .result-date em { color: var(--accent); font-style: italic; }
+  .result-meta { font-size: .62rem; color: var(--muted); margin-top: .3rem; letter-spacing: .5px; }
+  .tense-badge { font-size: .6rem; padding: .3rem .9rem; border-radius: 20px; font-family: var(--font-mono); letter-spacing: 1px; white-space: nowrap; align-self: flex-start; }
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: .8rem; margin-bottom: 1.2rem; }
+  .data-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; transition: border-color .2s, transform .15s; }
+  .data-card:hover { border-color: var(--border-hi); transform: translateY(-1px); }
+  .card-icon { font-size: 1.3rem; margin-bottom: .4rem; display: block; }
+  .card-value { font-size: 1rem; font-weight: 700; margin-bottom: .25rem; }
+  .card-sub { font-size: .62rem; color: var(--muted); line-height: 1.5; }
+  .wl-row { display: flex; align-items: center; gap: .6rem; margin-bottom: .45rem; }
+  .wl-city { font-size: .62rem; color: var(--text); min-width: 80px; }
+  .wl-bar-bg { flex: 1; height: 18px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; }
+  .wl-bar-fill { height: 100%; border-radius: 3px; display: flex; align-items: center; padding-left: 6px; transition: width .6s ease; }
+  .wl-val { font-size: .6rem; font-weight: 700; min-width: 42px; text-align: right; }
+  .wl-status { font-size: .55rem; min-width: 48px; text-align: right; }
+  .narrative-box { background: rgba(0,200,255,0.04); border: 1px solid rgba(0,200,255,0.15); border-radius: 8px; padding: 1.2rem 1.4rem; margin-bottom: 1.2rem; }
+  .narrative-label { font-size: .58rem; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: .6rem; }
+  .narrative-text { font-family: var(--font-serif); font-size: 1.05rem; color: #ddf0ff; font-weight: 300; font-style: italic; line-height: 1.8; }
+  .events-section { margin-bottom: 1.2rem; }
+  .section-label { font-size: .6rem; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: .7rem; }
+  .event-card { background: var(--card); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: .8rem 1rem; margin-bottom: .5rem; border: 1px solid var(--border); border-left-width: 3px; }
+  .event-name { font-family: var(--font-serif); font-size: .95rem; font-weight: 600; color: #ddf0ff; }
+  .event-meta { display: flex; gap: .5rem; align-items: center; margin: .2rem 0; }
+  .event-type { font-size: .55rem; padding: 2px 7px; border-radius: 20px; }
+  .event-loc { font-size: .6rem; color: var(--accent2); }
+  .event-desc { font-size: .65rem; color: var(--muted); line-height: 1.5; margin-top: .25rem; }
+  .de-poll-row { display: flex; align-items: center; gap: .6rem; margin-bottom: .4rem; }
+  .de-poll-city { font-size: .62rem; min-width: 80px; text-align: right; color: var(--text); }
+  .de-poll-bar-bg { flex: 1; height: 16px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; }
+  .de-poll-bar { height: 100%; border-radius: 3px; display: flex; align-items: center; padding-left: 6px; font-size: .55rem; color: rgba(0,0,0,.8); font-weight: 700; }
+  .de-poll-lbl { font-size: .58rem; min-width: 55px; text-align: right; }
+  .error-box { background: rgba(255,71,87,0.08); border: 1px solid rgba(255,71,87,0.3); border-radius: 8px; padding: 1.2rem 1.4rem; text-align: center; }
+  .error-box h3 { color: var(--red); font-size: .85rem; margin-bottom: .4rem; }
+  .error-box p { font-size: .68rem; color: var(--muted); line-height: 1.6; }
+
+  @media(max-width:600px) {
+    .section { padding: 1.2rem; }
+    .poll-loc { min-width: 65px; font-size: 0.6rem; }
+    .depth-loc { min-width: 90px; }
+    .kpi-divider { display: none; }
+    .picker-zone { padding: 1rem; }
+    .load-btn { margin-left: 0; width: 100%; }
+    .cards-grid { grid-template-columns: 1fr 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -180,6 +286,7 @@ document.getElementById('pwd').addEventListener('keypress', function(e) {
   <button class="nav-btn" onclick="showTab('fish',this)">05 · Fish</button>
   <button class="nav-btn" onclick="showTab('depth',this)">06 · Depth</button>
   <button class="nav-btn" onclick="showTab('flood',this)">07 · Flood Zones</button>
+  <button class="nav-btn" onclick="showTab('dateexplorer',this)" style="color:var(--accent2);border-bottom-color:transparent;">08 · 📅 Date Explorer</button>
 </nav>
 
 <div class="tooltip" id="tooltip">
@@ -188,6 +295,7 @@ document.getElementById('pwd').addEventListener('keypress', function(e) {
   <div id="tt-body"></div>
 </div>
 
+<!-- EXISTING TABS -->
 <section class="section active" id="tab-map">
   <div class="sec-head">
     <h2 class="sec-title">Interactive <em>Map</em></h2>
@@ -260,6 +368,85 @@ document.getElementById('pwd').addEventListener('keypress', function(e) {
   <div id="floodList"></div>
 </section>
 
+<!-- NEW DATE EXPLORER TAB -->
+<section class="section" id="tab-dateexplorer">
+  <div class="sec-head">
+    <h2 class="sec-title">📅 Date <em>Explorer</em></h2>
+    <p class="sec-sub">Kisi bhi date ka Ganga data dekho — past ya future. AI seasonal patterns aur scientific data se accurate conditions generate karta hai.</p>
+  </div>
+
+  <!-- DATE PICKER BAR -->
+  <div class="picker-zone" style="border-radius:8px;border:1px solid var(--border);margin-bottom:1.5rem;">
+    <span class="picker-label">📅 Date Chuno</span>
+    <div class="date-input-wrap">
+      <span>🗓</span>
+      <input type="date" id="datePicker" />
+    </div>
+    <div class="presets" id="presetsContainer"></div>
+    <span id="seasonTag">—</span>
+    <button class="load-btn" id="loadBtn" onclick="loadDateData()">LOAD DATA ▶</button>
+  </div>
+
+  <div class="de-main">
+    <!-- Empty state -->
+    <div id="de-emptyState" class="empty-state">
+      <span class="empty-icon">🌊</span>
+      <div class="empty-title">Koi bhi date select karo</div>
+      <p class="empty-sub">Upar date picker se past ya future ki koi bhi date choose karo. AI us din ki poori Ganga condition generate karega.</p>
+      <div style="margin-top:1.5rem;display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem;">
+        <span style="font-size:.62rem;background:rgba(0,232,154,0.1);color:#00e89a;padding:.3rem .8rem;border-radius:20px;">💧 Water Level</span>
+        <span style="font-size:.62rem;background:rgba(255,71,87,0.1);color:#ff4757;padding:.3rem .8rem;border-radius:20px;">🧪 Pollution Index</span>
+        <span style="font-size:.62rem;background:rgba(0,200,255,0.1);color:#00c8ff;padding:.3rem .8rem;border-radius:20px;">🌊 Flow Rate</span>
+        <span style="font-size:.62rem;background:rgba(249,202,36,0.1);color:#f9ca24;padding:.3rem .8rem;border-radius:20px;">⚠️ Flood Risk</span>
+        <span style="font-size:.62rem;background:rgba(0,232,154,0.1);color:#00e89a;padding:.3rem .8rem;border-radius:20px;">🐟 Fish Activity</span>
+        <span style="font-size:.62rem;background:rgba(180,220,255,0.1);color:#b0d4f1;padding:.3rem .8rem;border-radius:20px;">🏔️ Glacier Status</span>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div id="de-loadingState" style="display:none;" class="loading-state">
+      <div style="font-size:2rem;margin-bottom:.5rem">🌊</div>
+      <div class="loading-msg" id="de-loadingMsg">River data analyze ho raha hai...</div>
+      <div class="loading-river"><div class="loading-flow"></div></div>
+      <div class="loading-steps" id="de-loadingSteps"></div>
+    </div>
+
+    <!-- Result panel -->
+    <div id="de-resultPanel" style="display:none;">
+      <div class="result-header">
+        <div>
+          <div class="result-date" id="de-resultDateTitle"></div>
+          <div class="result-meta" id="de-resultMeta"></div>
+        </div>
+        <span class="tense-badge" id="de-tenseBadge"></span>
+      </div>
+      <div class="cards-grid" id="de-cardsGrid"></div>
+      <div class="data-card" style="margin-bottom:1.2rem;">
+        <div class="card-label">📍 City-wise Water Level</div>
+        <div id="de-wlBars" style="margin-top:.6rem;"></div>
+      </div>
+      <div class="data-card" style="margin-bottom:1.2rem;">
+        <div class="card-label">🧪 BOD Pollution by City (mg/L · Safe limit: 3)</div>
+        <div id="de-pollBars" style="margin-top:.6rem;"></div>
+      </div>
+      <div class="narrative-box">
+        <div class="narrative-label">🤖 AI River Analysis</div>
+        <div class="narrative-text" id="de-narrativeText"></div>
+      </div>
+      <div class="events-section" id="de-eventsSection" style="display:none;">
+        <div class="section-label">📅 Is Date ke Notable Events</div>
+        <div id="de-eventsList"></div>
+      </div>
+    </div>
+
+    <!-- Error state -->
+    <div id="de-errorState" style="display:none;" class="error-box">
+      <h3>❌ Data load nahi hua</h3>
+      <p id="de-errorMsg">Kuch galat ho gaya. Dobara try karo.</p>
+    </div>
+  </div>
+</section>
+
 <footer class="site-footer">
   <div class="footer-brand">Ganga River Explorer &nbsp;·&nbsp; Built by <a href="https://signed.emem.dev" target="_blank">signed.emem.dev</a></div>
   <div class="footer-note">Data · CPCB · NMCG · NRCD · GSI &nbsp;|&nbsp; GitHub Pages</div>
@@ -298,8 +485,251 @@ DEPTHS.forEach(d=>{db.innerHTML+=`<div class="depth-row"><div class="depth-loc">
 const fl=$('floodList');
 FLOODS.forEach(f=>{const tags=f.tags.map(t=>`<span class="flood-tag">${t}</span>`).join('');fl.innerHTML+=`<div class="flood-item"><div class="flood-area"><span class="severity-pill ${f.sevc}">${f.sev}</span>⚠ ${f.area}</div><div class="flood-desc">${f.desc}</div><div class="flood-tags">${tags}</div></div>`;});
 
-function showTab(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));$('tab-'+id).classList.add('active');if(btn)btn.classList.add('active');if(id==='map')renderMap();}
+function showTab(id,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  $('tab-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(id==='map')renderMap();
+}
 
+// ── DATE EXPLORER LOGIC ──
+const inp = $('datePicker');
+const today = new Date();
+inp.value = today.toISOString().split('T')[0];
+inp.min = '2000-01-01';
+inp.max = '2035-12-31';
+inp.addEventListener('change', () => updateSeason(new Date(inp.value + 'T12:00:00')));
+updateSeason(today);
+
+const PRESETS = [
+  {label:'2Y Ago', days:-730},{label:'1Y Ago', days:-365},{label:'6M Ago', days:-180},
+  {label:'Today', days:0},{label:'+1M', days:30},{label:'+6M', days:180},{label:'+1Y', days:365},
+];
+const pc = $('presetsContainer');
+PRESETS.forEach(p => {
+  const b = document.createElement('button');
+  b.className = 'preset-btn';
+  b.textContent = p.label;
+  b.onclick = () => {
+    const d = new Date();
+    d.setDate(d.getDate() + p.days);
+    inp.value = d.toISOString().split('T')[0];
+    updateSeason(d);
+    loadDateData();
+  };
+  pc.appendChild(b);
+});
+
+function getSeason(date) {
+  const m = date.getMonth() + 1;
+  if (m >= 6 && m <= 9)  return { name:'Monsoon',      emoji:'🌧',  bg:'rgba(0,150,255,0.15)', color:'#4fc3f7' };
+  if (m >= 10 && m <= 11) return { name:'Post-Monsoon', emoji:'🍂',  bg:'rgba(253,150,68,0.15)', color:'#fd9644' };
+  if (m === 12 || m <= 2) return { name:'Winter',       emoji:'❄️',  bg:'rgba(180,220,255,0.12)', color:'#b0d4f1' };
+  return                          { name:'Summer',       emoji:'☀️',  bg:'rgba(249,202,36,0.15)', color:'#f9ca24' };
+}
+function updateSeason(date) {
+  const s = getSeason(date);
+  const tag = $('seasonTag');
+  tag.textContent = s.emoji + ' ' + s.name;
+  tag.style.background = s.bg;
+  tag.style.color = s.color;
+  tag.style.borderColor = s.color + '60';
+}
+function deShowState(which) {
+  ['de-emptyState','de-loadingState','de-resultPanel','de-errorState'].forEach(id => {
+    $(id).style.display = id === which ? 'block' : 'none';
+  });
+}
+let deLoadInterval = null;
+function deStartLoadAnim() {
+  const msgs = ['🌊 River conditions fetch ho rahi hain...','📊 Seasonal patterns analyze ho rahe hain...','🧪 Pollution indices compute ho rahe hain...','💧 Water levels calculate ho rahe hain...','🐟 Aquatic life data compile ho raha hai...','🏔️ Glacier status check ho raha hai...','📅 Historical records match ho rahe hain...','✅ Report finalize ho rahi hai...'];
+  let i = 0;
+  $('de-loadingMsg').textContent = msgs[0];
+  $('de-loadingSteps').innerHTML = '';
+  deLoadInterval = setInterval(() => {
+    i = Math.min(i + 1, msgs.length - 1);
+    $('de-loadingMsg').textContent = msgs[i];
+    $('de-loadingSteps').innerHTML += `<div style="opacity:.5">✓ ${msgs[i-1]}</div>`;
+  }, 900);
+}
+function deStopLoadAnim() { clearInterval(deLoadInterval); }
+function fmtDate(ds) {
+  const d = new Date(ds + 'T12:00:00');
+  return d.toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+}
+function isPast(ds) { return new Date(ds + 'T12:00:00') < new Date(); }
+function polColor(bod) {
+  const v = parseFloat(bod);
+  if (v < 3)  return '#00e89a';
+  if (v < 10) return '#f9ca24';
+  if (v < 30) return '#fd9644';
+  return '#ff4757';
+}
+
+async function loadDateData() {
+  const ds = inp.value;
+  if (!ds) return;
+  const btn = $('loadBtn');
+  btn.disabled = true;
+  deShowState('de-loadingState');
+  deStartLoadAnim();
+
+  const dateNice = fmtDate(ds);
+  const past = isPast(ds);
+  const month = new Date(ds + 'T12:00:00').getMonth() + 1;
+  const year  = new Date(ds + 'T12:00:00').getFullYear();
+  const season = getSeason(new Date(ds + 'T12:00:00'));
+
+  const prompt = `You are a senior hydrologist and environmental scientist expert on the Ganga (Ganges) River, India.
+
+Generate precise, scientifically accurate data for the Ganga River on: ${dateNice} (${ds})
+This date is in the ${past ? 'PAST — use actual historical records, real measured data patterns, and past events' : 'FUTURE — use seasonal forecasting models, climate trends, and predictive hydrology'}.
+Month: ${month}, Year: ${year}, Season: ${season.name}
+
+Respond ONLY with valid JSON. No markdown, no backticks, no text outside the JSON.
+
+{
+  "season": "${season.name}",
+  "overall_summary": "One crisp sentence summarizing river state this day",
+  "water_level": {
+    "overall_status": "Low|Normal|High|Flood Alert|Major Flood",
+    "haridwar_m": number,
+    "haridwar_status": "Low|Normal|High|Flood",
+    "prayagraj_m": number,
+    "prayagraj_status": "Low|Normal|High|Flood",
+    "varanasi_m": number,
+    "varanasi_status": "Low|Normal|High|Flood",
+    "patna_m": number,
+    "patna_status": "Low|Normal|High|Flood",
+    "note": "brief water level context"
+  },
+  "pollution": {
+    "avg_bod_mgL": number,
+    "trend_vs_average": "Better|Same|Worse",
+    "rishikesh_bod": number,
+    "kanpur_bod": number,
+    "varanasi_bod": number,
+    "patna_bod": number,
+    "kolkata_bod": number,
+    "worst_city": "city name",
+    "cleanest_city": "city name",
+    "seasonal_note": "why pollution is this level this season"
+  },
+  "flow_rate": {
+    "gangotri_cumecs": number,
+    "haridwar_cumecs": number,
+    "prayagraj_cumecs": number,
+    "patna_cumecs": number,
+    "description": "flow characterization"
+  },
+  "flood_risk": {
+    "level": "None|Low|Moderate|High|Critical",
+    "color": "#hexcolor",
+    "risk_percent": number,
+    "most_at_risk": "district or area name",
+    "note": "flood risk reasoning"
+  },
+  "fish_activity": {
+    "hilsa_migrating": true or false,
+    "hilsa_note": "why hilsa is/isn't migrating",
+    "dolphin_sightings": "High|Moderate|Low",
+    "mahseer_season": true or false,
+    "overall_note": "fish/aquatic life summary this date"
+  },
+  "glacier": {
+    "melt_rate": "Frozen|Very Low|Low|Moderate|High|Peak",
+    "gangotri_contribution_pct": number,
+    "note": "glacier status and impact"
+  },
+  "temperature": {
+    "water_celsius": number,
+    "air_min_celsius": number,
+    "air_max_celsius": number,
+    "note": "temp impact on river ecology"
+  },
+  "special_events": [
+    {
+      "name": "Name of any significant religious/cultural/ecological/historical event on or very near this exact date on the Ganga",
+      "type": "Religious|Festival|Historical|Environmental|Disaster",
+      "location": "city/place",
+      "description": "2-sentence description"
+    }
+  ],
+  "ai_narrative": "Write 4 vivid, scientifically accurate sentences describing the Ganga on this exact date. Describe the water color and clarity, the flow speed and sound, what activities are happening on the banks, the ecological state, and anything special about this particular day. ${past ? 'Use past tense.' : 'Use future/predictive language: will, is expected to, forecasts suggest.'}"
+}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1200,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const raw = await res.json();
+    deStopLoadAnim();
+    const text = (raw.content||[]).map(b=>b.text||'').join('');
+    const clean = text.replace(/```json|```/g,'').trim();
+    const d = JSON.parse(clean);
+    deRenderResult(ds, d, past);
+  } catch(err) {
+    deStopLoadAnim();
+    $('de-errorMsg').textContent = err.message;
+    deShowState('de-errorState');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function deRenderResult(ds, d, past) {
+  deShowState('de-resultPanel');
+  $('de-resultDateTitle').innerHTML = `<em>${past ? 'Historical' : 'Forecast'}</em> — ${fmtDate(ds)}`;
+  $('de-resultMeta').textContent = `${d.season} Season · AI ${past ? 'Historical Analysis' : 'Predictive Forecast'} · ${d.overall_summary}`;
+  const tb = $('de-tenseBadge');
+  tb.textContent = past ? '📜 Past Record' : '🔮 Future Forecast';
+  tb.style.cssText = `font-size:.6rem;padding:.3rem .9rem;border-radius:20px;font-family:var(--font-mono);letter-spacing:1px;align-self:flex-start;background:${past?'rgba(0,200,255,0.1)':'rgba(249,202,36,0.1)'};color:${past?'var(--accent)':'var(--accent2)'};border:1px solid ${past?'rgba(0,200,255,0.3)':'rgba(249,202,36,0.3)'};`;
+
+  const floodCol = d.flood_risk.color || (d.flood_risk.level==='Critical'?'#ff4757':d.flood_risk.level==='High'?'#fd9644':'#f9ca24');
+  const bodCol = polColor(d.pollution.avg_bod_mgL);
+  const cards = [
+    {icon:'💧',label:'Water Level Status',value:d.water_level.overall_status,sub:d.water_level.note,color:d.water_level.overall_status.includes('Flood')?'#ff4757':d.water_level.overall_status==='High'?'#fd9644':'#00c8ff'},
+    {icon:'🧪',label:'Avg BOD Pollution',value:d.pollution.avg_bod_mgL+' mg/L',sub:`Trend: ${d.pollution.trend_vs_average} · ${d.pollution.seasonal_note.substring(0,60)}...`,color:bodCol},
+    {icon:'🌊',label:'Flow at Patna',value:Number(d.flow_rate.patna_cumecs).toLocaleString()+' m³/s',sub:d.flow_rate.description,color:'#4fc3f7'},
+    {icon:'⚠️',label:'Flood Risk',value:d.flood_risk.level,sub:`Risk: ${d.flood_risk.risk_percent}% · ${d.flood_risk.most_at_risk}`,color:floodCol},
+    {icon:'🐟',label:'Fish Activity',value:d.fish_activity.hilsa_migrating?'🐟 Hilsa Migrating':'🐬 Dolphin: '+d.fish_activity.dolphin_sightings,sub:d.fish_activity.overall_note,color:'#00e89a'},
+    {icon:'🌡️',label:'Water Temperature',value:d.temperature.water_celsius+'°C',sub:`Air: ${d.temperature.air_min_celsius}–${d.temperature.air_max_celsius}°C · ${d.temperature.note.substring(0,55)}...`,color:'#f9ca24'},
+    {icon:'🏔️',label:'Gangotri Glacier',value:d.glacier.melt_rate+' Melt',sub:`${d.glacier.gangotri_contribution_pct}% flow share · ${d.glacier.note.substring(0,55)}...`,color:'#b0d4f1'},
+    {icon:'🌧',label:'Flow at Haridwar',value:Number(d.flow_rate.haridwar_cumecs).toLocaleString()+' m³/s',sub:`Gangotri: ${Number(d.flow_rate.gangotri_cumecs).toLocaleString()} m³/s`,color:'#4fc3f7'},
+  ];
+  const grid = $('de-cardsGrid');
+  grid.innerHTML = '';
+  cards.forEach(c=>{grid.innerHTML+=`<div class="data-card" style="border-left:3px solid ${c.color}60;"><span class="card-icon">${c.icon}</span><div class="card-label">${c.label}</div><div class="card-value" style="color:${c.color}">${c.value}</div><div class="card-sub">${c.sub}</div></div>`;});
+
+  const wlData=[{city:'Haridwar',m:d.water_level.haridwar_m,status:d.water_level.haridwar_status,max:15},{city:'Prayagraj',m:d.water_level.prayagraj_m,status:d.water_level.prayagraj_status,max:35},{city:'Varanasi',m:d.water_level.varanasi_m,status:d.water_level.varanasi_status,max:40},{city:'Patna',m:d.water_level.patna_m,status:d.water_level.patna_status,max:50}];
+  const wlC={Low:'#f9ca24',Normal:'#00c8ff',High:'#fd9644',Flood:'#ff4757'};
+  $('de-wlBars').innerHTML = wlData.map(w=>{const pct=Math.min((w.m/w.max)*100,100);const col=wlC[w.status]||'#00c8ff';return `<div class="wl-row"><div class="wl-city">${w.city}</div><div class="wl-bar-bg"><div class="wl-bar-fill" style="width:${pct}%;background:${col}"><span style="font-size:.55rem;font-weight:700;color:rgba(0,0,0,.8)">${w.m}m</span></div></div><div class="wl-val" style="color:${col}">${w.m}m</div><div class="wl-status" style="color:${col}">${w.status}</div></div>`;}).join('');
+
+  const pollData=[{city:'Rishikesh',bod:d.pollution.rishikesh_bod},{city:'Kanpur',bod:d.pollution.kanpur_bod},{city:'Varanasi',bod:d.pollution.varanasi_bod},{city:'Patna',bod:d.pollution.patna_bod},{city:'Kolkata',bod:d.pollution.kolkata_bod}];
+  const maxBod=Math.max(...pollData.map(p=>p.bod),3);
+  $('de-pollBars').innerHTML = pollData.map(p=>{const pct=Math.min((p.bod/maxBod)*100,100);const col=polColor(p.bod);const lbl=p.bod<3?'Clean':p.bod<10?'Moderate':p.bod<30?'High':'Critical';return `<div class="de-poll-row"><div class="de-poll-city">${p.city}</div><div class="de-poll-bar-bg"><div class="de-poll-bar" style="width:${pct}%;background:${col}">${p.bod} mg/L</div></div><div class="de-poll-lbl" style="color:${col}">${lbl}</div></div>`;}).join('');
+
+  $('de-narrativeText').textContent = d.ai_narrative;
+
+  const evSection = $('de-eventsSection');
+  const evList = $('de-eventsList');
+  if(d.special_events && d.special_events.length > 0){
+    const typeColor={Religious:'#f9ca24',Festival:'#fd9644',Historical:'#a29bfe',Environmental:'#00e89a',Disaster:'#ff4757'};
+    evList.innerHTML = d.special_events.map(ev=>{const col=typeColor[ev.type]||'#00c8ff';return `<div class="event-card" style="border-left-color:${col};"><div class="event-name">${ev.name}</div><div class="event-meta"><span class="event-type" style="background:${col}18;color:${col}">${ev.type}</span><span class="event-loc">📍 ${ev.location}</span></div><div class="event-desc">${ev.description}</div></div>`;}).join('');
+    evSection.style.display='block';
+  } else { evSection.style.display='none'; }
+
+  $('de-resultPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ── MAP RENDER ──
 let mapRendered=false;
 function renderMap(){
   if(mapRendered)return;
