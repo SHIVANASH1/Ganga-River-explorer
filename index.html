@@ -4,122 +4,70 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ganga River Explorer — From Glacier to Gulf</title>
-<meta name="description" content="Interactive explorer of the Ganges River — pollution, tributaries, depth, fish, flood zones. Built by signed.emem.dev">
+<meta name="description" content="Interactive explorer of the Ganges River — pollution, tributaries, depth, fish, flood zones.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 <style>
   :root {
-    --bg: #04090f;
-    --surface: #07121d;
-    --card: #0b1d2e;
-    --border: rgba(100,200,255,0.12);
-    --border-hi: rgba(100,200,255,0.3);
-    --text: #c8e8f8;
-    --muted: #5a8aaa;
-    --accent: #00c8ff;
-    --accent2: #f0c040;
-    --green: #00e89a;
-    --yellow: #f9ca24;
-    --orange: #fd9644;
-    --red: #ff4757;
-    --red-deep: #c0392b;
-    --font-mono: 'Space Mono', monospace;
-    --font-serif: 'Crimson Pro', Georgia, serif;
-    --r: 8px;
+    --bg: #04090f; --surface: #07121d; --card: #0b1d2e;
+    --border: rgba(100,200,255,0.12); --border-hi: rgba(100,200,255,0.3);
+    --text: #c8e8f8; --muted: #5a8aaa; --accent: #00c8ff; --accent2: #f0c040;
+    --green: #00e89a; --yellow: #f9ca24; --orange: #fd9644; --red: #ff4757;
+    --font-mono: 'Space Mono', monospace; --font-serif: 'Crimson Pro', Georgia, serif; --r: 8px;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
   body { background: var(--bg); color: var(--text); font-family: var(--font-mono); font-size: 13px; min-height: 100vh; }
-
-  /* ── HEADER ── */
-  .site-header {
-    position: relative; overflow: hidden;
-    background: linear-gradient(180deg, #001628 0%, #04090f 100%);
-    border-bottom: 1px solid var(--border);
-    padding: 3rem 2rem 2rem;
-    text-align: center;
-  }
-  .site-header::before {
-    content: '';
-    position: absolute; inset: 0;
-    background-image:
-      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0,200,255,0.07) 0%, transparent 70%),
-      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,200,255,0.03) 40px, rgba(0,200,255,0.03) 41px),
-      repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,200,255,0.02) 40px, rgba(0,200,255,0.02) 41px);
-    pointer-events: none;
-  }
+  .site-header { position: relative; overflow: hidden; background: linear-gradient(180deg, #001628 0%, #04090f 100%); border-bottom: 1px solid var(--border); padding: 3rem 2rem 2rem; text-align: center; }
+  .site-header::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0,200,255,0.07) 0%, transparent 70%), repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,200,255,0.03) 40px, rgba(0,200,255,0.03) 41px), repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,200,255,0.02) 40px, rgba(0,200,255,0.02) 41px); pointer-events: none; }
   .header-eyebrow { font-size: 0.68rem; color: var(--accent); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 0.8rem; }
   .header-title { font-family: var(--font-serif); font-size: clamp(2rem, 6vw, 4rem); font-weight: 300; color: #e8f6ff; letter-spacing: -1px; line-height: 1.1; margin-bottom: 0.5rem; }
   .header-title em { font-style: italic; color: var(--accent); }
   .header-sub { font-size: 0.72rem; color: var(--muted); letter-spacing: 2px; margin-bottom: 2rem; }
-  .kpi-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 1.5rem; position: relative; }
+  .kpi-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 1.5rem; }
   .kpi { text-align: center; }
   .kpi-val { font-size: 1.5rem; font-weight: 700; color: var(--accent2); display: block; line-height: 1; }
   .kpi-lbl { font-size: 0.6rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 0.3rem; display: block; }
   .kpi-divider { width: 1px; background: var(--border); align-self: stretch; }
-
-  /* ── FACT CORRECTION BANNER ── */
-  .correction-banner {
-    background: rgba(240,192,64,0.08); border-top: 1px solid rgba(240,192,64,0.3);
-    border-bottom: 1px solid rgba(240,192,64,0.15);
-    padding: 0.6rem 2rem; text-align: center;
-    font-size: 0.68rem; color: var(--accent2); letter-spacing: 1px;
-  }
+  .correction-banner { background: rgba(240,192,64,0.08); border-top: 1px solid rgba(240,192,64,0.3); border-bottom: 1px solid rgba(240,192,64,0.15); padding: 0.6rem 2rem; text-align: center; font-size: 0.68rem; color: var(--accent2); letter-spacing: 1px; }
   .correction-banner strong { color: #fff; }
-
-  /* ── NAV ── */
   .nav { display: flex; overflow-x: auto; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
   .nav::-webkit-scrollbar { height: 2px; }
   .nav::-webkit-scrollbar-thumb { background: var(--accent); }
   .nav-btn { padding: 0.9rem 1.4rem; font-size: 0.7rem; font-family: var(--font-mono); color: var(--muted); cursor: pointer; white-space: nowrap; border: none; background: none; border-bottom: 2px solid transparent; letter-spacing: 1px; text-transform: uppercase; transition: all 0.2s; flex-shrink: 0; }
   .nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(0,200,255,0.05); }
   .nav-btn:hover:not(.active) { color: var(--text); }
-
-  /* ── SECTIONS ── */
   .section { display: none; padding: 2rem; max-width: 1200px; margin: 0 auto; }
   .section.active { display: block; }
   .sec-head { margin-bottom: 1.5rem; }
   .sec-title { font-family: var(--font-serif); font-size: 1.8rem; font-weight: 300; color: #e8f6ff; letter-spacing: -0.5px; }
   .sec-title em { font-style: italic; color: var(--accent); }
   .sec-sub { font-size: 0.72rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.7; letter-spacing: 0.5px; max-width: 700px; }
-
-  /* ── MAP ── */
-  #map-svg { width: 100%; height: auto; display: block; }
+  #map-svg { width: 100%; height: auto; display: block; cursor: grab; }
+  #map-svg:active { cursor: grabbing; }
   .map-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; position: relative; }
   .map-legend { display: flex; flex-wrap: wrap; gap: 1rem; padding: 1rem 1.5rem; border-top: 1px solid var(--border); background: var(--card); }
   .map-legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
   .map-dot { width: 10px; height: 10px; border-radius: 50%; }
   .map-line { width: 20px; height: 3px; border-radius: 2px; }
-  .tooltip {
-    position: fixed; pointer-events: none; z-index: 999;
-    background: rgba(7,18,29,0.97); border: 1px solid var(--border-hi);
-    border-radius: var(--r); padding: 0.9rem 1.1rem; max-width: 260px;
-    font-family: var(--font-mono); font-size: 0.68rem; color: var(--text);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.6); display: none;
-    line-height: 1.6;
-  }
+  .map-hint { font-size: 0.62rem; color: var(--muted); padding: 0.4rem 1.5rem; background: var(--card); border-top: 1px solid var(--border); letter-spacing: 1px; }
+  .tooltip { position: fixed; pointer-events: none; z-index: 999; background: rgba(7,18,29,0.97); border: 1px solid var(--border-hi); border-radius: var(--r); padding: 0.9rem 1.1rem; max-width: 260px; font-family: var(--font-mono); font-size: 0.68rem; color: var(--text); box-shadow: 0 8px 32px rgba(0,0,0,0.6); display: none; line-height: 1.6; }
   .tooltip-name { font-size: 0.85rem; font-weight: 700; color: var(--accent); margin-bottom: 0.4rem; font-family: var(--font-serif); }
   .tooltip-badge { display: inline-block; font-size: 0.6rem; padding: 2px 7px; border-radius: 20px; margin-bottom: 0.5rem; letter-spacing: 1px; text-transform: uppercase; }
   .tt-row { display: flex; justify-content: space-between; gap: 1rem; margin-top: 0.2rem; }
-  .tt-key { color: var(--muted); }
-  .tt-val { color: var(--accent2); }
-
-  /* ── GRID CARDS ── */
+  .tt-key { color: var(--muted); } .tt-val { color: var(--accent2); }
   .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
-  .grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
   .grid-4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 1.1rem 1.2rem; }
   .card:hover { border-color: var(--border-hi); }
   .card-label { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.5rem; }
   .card-val { font-size: 1.3rem; font-weight: 700; color: var(--accent2); }
   .card-sub { font-size: 0.7rem; color: var(--muted); margin-top: 0.2rem; }
-
-  /* ── JOURNEY TIMELINE ── */
   .timeline { position: relative; padding-left: 2rem; }
   .timeline::before { content: ''; position: absolute; left: 0.4rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--green), var(--accent), var(--orange), var(--red), #9b59b6, var(--accent)); }
-  .t-node { position: relative; margin-bottom: 1.2rem; cursor: default; }
+  .t-node { position: relative; margin-bottom: 1.2rem; }
   .t-dot { position: absolute; left: -1.65rem; top: 0.9rem; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--bg); z-index: 2; transition: transform 0.2s; }
   .t-node:hover .t-dot { transform: scale(1.6); }
   .t-inner { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 0.9rem 1rem; transition: border-color 0.2s; }
@@ -129,43 +77,33 @@
   .t-state { font-size: 0.6rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
   .t-km { font-size: 0.6rem; color: var(--accent2); }
   .t-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.4rem 0; }
-  .t-tag { font-size: 0.58rem; padding: 2px 8px; border-radius: 20px; letter-spacing: 0.5px; }
+  .t-tag { font-size: 0.58rem; padding: 2px 8px; border-radius: 20px; }
   .t-desc { font-size: 0.72rem; color: var(--muted); line-height: 1.6; }
   .p-bar-wrap { margin-top: 0.6rem; display: flex; align-items: center; gap: 0.6rem; }
   .p-bar-bg { flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
-  .p-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
+  .p-bar-fill { height: 100%; border-radius: 2px; }
   .p-lbl { font-size: 0.58rem; min-width: 60px; text-align: right; text-transform: uppercase; letter-spacing: 1px; }
-
-  /* ── POLLUTION BARS ── */
   .poll-row { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.7rem; }
   .poll-loc { font-size: 0.68rem; color: var(--text); min-width: 90px; text-align: right; }
-  .poll-bar-bg { flex: 1; height: 20px; background: rgba(255,255,255,0.04); border-radius: 4px; overflow: hidden; position: relative; }
-  .poll-bar-fill { height: 100%; display: flex; align-items: center; padding-left: 0.5rem; font-size: 0.6rem; color: rgba(255,255,255,0.85); font-weight: 700; transition: width 1s ease; border-radius: 4px; }
+  .poll-bar-bg { flex: 1; height: 20px; background: rgba(255,255,255,0.04); border-radius: 4px; overflow: hidden; }
+  .poll-bar-fill { height: 100%; display: flex; align-items: center; padding-left: 0.5rem; font-size: 0.6rem; color: rgba(255,255,255,0.85); font-weight: 700; border-radius: 4px; }
   .poll-val { font-size: 0.65rem; min-width: 60px; text-align: right; }
-
-  /* ── TRIBUTARIES ── */
   .trib-item { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 0 var(--r) var(--r) 0; padding: 0.8rem 1rem; margin-bottom: 0.7rem; display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; align-items: start; }
   .trib-name { font-size: 0.9rem; font-weight: 700; color: var(--accent); font-family: var(--font-serif); }
   .trib-at { font-size: 0.65rem; color: var(--accent2); margin-top: 0.2rem; }
   .trib-note { font-size: 0.68rem; color: var(--muted); margin-top: 0.3rem; line-height: 1.5; grid-column: 1 / -1; }
   .trib-side { font-size: 0.58rem; background: rgba(0,200,255,0.1); color: var(--accent); padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
-
-  /* ── FISH ── */
   .fish-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 1rem; text-align: center; }
   .fish-card:hover { border-color: var(--border-hi); }
   .fish-icon { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
   .fish-name { font-size: 0.8rem; font-weight: 700; color: #ddf0ff; margin-bottom: 0.2rem; font-family: var(--font-serif); }
   .fish-zone { font-size: 0.62rem; color: var(--muted); line-height: 1.4; margin-bottom: 0.5rem; }
-  .fish-badge { display: inline-block; font-size: 0.58rem; padding: 2px 8px; border-radius: 20px; letter-spacing: 0.5px; }
-
-  /* ── DEPTH ── */
+  .fish-badge { display: inline-block; font-size: 0.58rem; padding: 2px 8px; border-radius: 20px; }
   .depth-row { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.6rem; }
   .depth-loc { font-size: 0.68rem; color: var(--text); min-width: 130px; text-align: right; }
   .depth-bar-bg { flex: 1; height: 24px; background: rgba(0,200,255,0.04); border-radius: 4px; overflow: hidden; border: 1px solid rgba(0,200,255,0.08); }
   .depth-bar-fill { height: 100%; display: flex; align-items: center; padding-left: 0.5rem; font-size: 0.6rem; color: rgba(255,255,255,0.85); font-weight: 700; border-radius: 4px; }
   .depth-unit { font-size: 0.65rem; color: var(--accent2); min-width: 60px; }
-
-  /* ── FLOOD ── */
   .flood-item { background: rgba(192,57,43,0.08); border: 1px solid rgba(192,57,43,0.2); border-left: 3px solid var(--red); border-radius: 0 var(--r) var(--r) 0; padding: 1rem 1.1rem; margin-bottom: 0.8rem; }
   .flood-area { font-size: 0.9rem; font-weight: 700; color: #ff7675; font-family: var(--font-serif); margin-bottom: 0.3rem; }
   .flood-desc { font-size: 0.7rem; color: #c0a0a0; line-height: 1.6; margin-bottom: 0.6rem; }
@@ -174,34 +112,22 @@
   .severity-pill { font-size: 0.58rem; padding: 2px 9px; border-radius: 20px; float: right; margin-left: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
   .sev-high { background: rgba(255,71,87,0.15); color: var(--red); }
   .sev-med { background: rgba(253,150,68,0.15); color: var(--orange); }
-
-  /* ── INFO TABLE ── */
   .info-table { width: 100%; border-collapse: collapse; }
   .info-table td { padding: 0.5rem 0.3rem; border-bottom: 1px solid var(--border); font-size: 0.7rem; vertical-align: top; }
   .info-table td:first-child { color: var(--muted); width: 45%; }
   .info-table td:last-child { color: var(--accent2); text-align: right; }
-
-  /* ── STATES BADGE ── */
   .state-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 0.4rem 0.9rem; font-size: 0.68rem; color: var(--text); margin: 0.3rem; }
   .state-dot { width: 8px; height: 8px; border-radius: 50%; }
-
-  /* ── FOOTER ── */
   .site-footer { background: var(--surface); border-top: 1px solid var(--border); padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
   .footer-brand { font-family: var(--font-serif); font-size: 0.9rem; color: var(--muted); }
   .footer-brand a { color: var(--accent2); text-decoration: none; font-weight: 600; }
-  .footer-brand a:hover { color: var(--accent); }
   .footer-note { font-size: 0.6rem; color: var(--muted); letter-spacing: 1px; }
-
-  @media(max-width: 600px) {
-    .section { padding: 1.2rem; }
-    .poll-loc { min-width: 65px; font-size: 0.6rem; }
-    .depth-loc { min-width: 90px; }
-    .kpi-divider { display: none; }
-  }
+  @media(max-width:600px) { .section { padding: 1.2rem; } .poll-loc { min-width: 65px; font-size: 0.6rem; } .depth-loc { min-width: 90px; } .kpi-divider { display: none; } }
 </style>
 </head>
 <body>
-  <div id="loginOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;z-index:99999;display:flex;align-items:center;justify-content:center;">
+
+<div id="loginOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;z-index:99999;display:flex;align-items:center;justify-content:center;">
   <div style="background:#111;padding:40px;border-radius:12px;border:1px solid #333;text-align:center;min-width:300px;">
     <h2 style="color:#4fc3f7;margin-bottom:24px;">🌊 Ganga Explorer</h2>
     <input id="uid" type="text" placeholder="Username" style="display:block;width:100%;padding:10px;margin-bottom:12px;border-radius:6px;border:1px solid #444;background:#1a1a1a;color:#fff;font-size:15px;box-sizing:border-box;">
@@ -210,7 +136,6 @@
     <p id="err" style="color:#ff5555;margin-top:12px;display:none;">❌ Wrong username or password!</p>
   </div>
 </div>
-
 <script>
 function checkLogin() {
   var u = document.getElementById('uid').value;
@@ -226,7 +151,6 @@ document.getElementById('pwd').addEventListener('keypress', function(e) {
 });
 </script>
 
-<!-- HEADER -->
 <header class="site-header">
   <div class="header-eyebrow">🔱 Interactive Science Project</div>
   <h1 class="header-title">The <em>Ganges</em> River</h1>
@@ -245,34 +169,30 @@ document.getElementById('pwd').addEventListener('keypress', function(e) {
 </header>
 
 <div class="correction-banner">
-  ⚠️ <strong>Fact Check:</strong> Ganga river directly flows through <strong>5 states</strong> — Uttarakhand, Uttar Pradesh, Bihar, Jharkhand, West Bengal. &nbsp;|&nbsp; 11-state figure refers to the <strong>Ganga Basin</strong> (drainage area), not the river's main course.
+  ⚠️ <strong>Fact Check:</strong> Ganga river directly flows through <strong>5 states</strong> — Uttarakhand, Uttar Pradesh, Bihar, Jharkhand, West Bengal.
 </div>
 
-<!-- NAV -->
 <nav class="nav">
-  <button class="nav-btn active" onclick="showTab('map')">01 · Map</button>
-  <button class="nav-btn" onclick="showTab('journey')">02 · Journey</button>
-  <button class="nav-btn" onclick="showTab('pollution')">03 · Pollution</button>
-  <button class="nav-btn" onclick="showTab('tributaries')">04 · Tributaries</button>
-  <button class="nav-btn" onclick="showTab('fish')">05 · Fish</button>
-  <button class="nav-btn" onclick="showTab('depth')">06 · Depth</button>
-  <button class="nav-btn" onclick="showTab('flood')">07 · Flood Zones</button>
+  <button class="nav-btn active" onclick="showTab('map',this)">01 · Map</button>
+  <button class="nav-btn" onclick="showTab('journey',this)">02 · Journey</button>
+  <button class="nav-btn" onclick="showTab('pollution',this)">03 · Pollution</button>
+  <button class="nav-btn" onclick="showTab('tributaries',this)">04 · Tributaries</button>
+  <button class="nav-btn" onclick="showTab('fish',this)">05 · Fish</button>
+  <button class="nav-btn" onclick="showTab('depth',this)">06 · Depth</button>
+  <button class="nav-btn" onclick="showTab('flood',this)">07 · Flood Zones</button>
 </nav>
 
-<!-- TOOLTIP -->
 <div class="tooltip" id="tooltip">
   <div class="tooltip-name" id="tt-name"></div>
   <div id="tt-badge"></div>
   <div id="tt-body"></div>
 </div>
 
-<!-- ── TAB 1: MAP ── -->
 <section class="section active" id="tab-map">
   <div class="sec-head">
     <h2 class="sec-title">Interactive <em>Map</em></h2>
-    <p class="sec-sub">Hover over cities on the map to see pollution levels, depth, and key facts. The river path is drawn from Gangotri (Uttarakhand) to the Sundarbans Delta (West Bengal). States through which Ganga directly flows are highlighted.</p>
+    <p class="sec-sub">Scroll to zoom · Drag to pan · Hover cities for details · Click city to jump to Journey tab</p>
   </div>
-
   <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1.2rem;">
     <span class="state-badge"><span class="state-dot" style="background:#3498db"></span>Uttarakhand</span>
     <span class="state-badge"><span class="state-dot" style="background:#9b59b6"></span>Uttar Pradesh</span>
@@ -280,701 +200,164 @@ document.getElementById('pwd').addEventListener('keypress', function(e) {
     <span class="state-badge"><span class="state-dot" style="background:#e74c3c"></span>Jharkhand</span>
     <span class="state-badge"><span class="state-dot" style="background:#27ae60"></span>West Bengal</span>
   </div>
-
   <div class="map-wrap">
     <svg id="map-svg" viewBox="0 0 960 680"></svg>
+    <div class="map-hint">🖱 Scroll to zoom · Drag to pan · + / − buttons · ↺ to reset</div>
     <div class="map-legend">
       <div class="map-legend-item"><div class="map-dot" style="background:#00e89a"></div> Very Clean</div>
-      <div class="map-legend-item"><div class="map-dot" style="background:#f9ca24"></div> Moderate Pollution</div>
+      <div class="map-legend-item"><div class="map-dot" style="background:#f9ca24"></div> Moderate</div>
       <div class="map-legend-item"><div class="map-dot" style="background:#fd9644"></div> High Pollution</div>
-      <div class="map-legend-item"><div class="map-dot" style="background:#ff4757"></div> Critical Pollution</div>
-      <div class="map-legend-item"><div class="map-line" style="background:#00c8ff;opacity:0.7"></div> Ganga River</div>
+      <div class="map-legend-item"><div class="map-dot" style="background:#ff4757"></div> Critical</div>
+      <div class="map-legend-item"><div class="map-line" style="background:#00c8ff;opacity:0.7"></div> Ganga</div>
       <div class="map-legend-item"><div class="map-line" style="background:#5a8aaa;opacity:0.7"></div> Tributaries</div>
     </div>
   </div>
-
   <div class="grid-2" style="margin-top:1.5rem">
-    <div class="card">
-      <div class="card-label">River Origin</div>
-      <div class="card-val">Gangotri Glacier</div>
-      <div class="card-sub">Gaumukh, Uttarakhand · 3,892m altitude · Known as Bhagirathi until Devprayag</div>
-    </div>
-    <div class="card">
-      <div class="card-label">River End</div>
-      <div class="card-val">Bay of Bengal</div>
-      <div class="card-sub">Via Sundarbans Delta — world's largest mangrove forest (UNESCO Heritage)</div>
-    </div>
-    <div class="card">
-      <div class="card-label">Widest Point</div>
-      <div class="card-val">Patna, Bihar</div>
-      <div class="card-sub">1–2 km wide in dry season · 5+ km during monsoon floods</div>
-    </div>
-    <div class="card">
-      <div class="card-label">Deepest Point</div>
-      <div class="card-val">Varanasi / Patna</div>
-      <div class="card-sub">~28–35m in monsoon · Average depth 16m throughout</div>
-    </div>
+    <div class="card"><div class="card-label">River Origin</div><div class="card-val">Gangotri Glacier</div><div class="card-sub">Gaumukh, Uttarakhand · 3,892m altitude · Known as Bhagirathi until Devprayag</div></div>
+    <div class="card"><div class="card-label">River End</div><div class="card-val">Bay of Bengal</div><div class="card-sub">Via Sundarbans Delta — world's largest mangrove forest (UNESCO Heritage)</div></div>
+    <div class="card"><div class="card-label">Widest Point</div><div class="card-val">Patna, Bihar</div><div class="card-sub">1–2 km wide in dry season · 5+ km during monsoon floods</div></div>
+    <div class="card"><div class="card-label">Deepest Point</div><div class="card-val">Varanasi / Patna</div><div class="card-sub">~28–35m in monsoon · Average depth 16m throughout</div></div>
   </div>
 </section>
 
-<!-- ── TAB 2: JOURNEY ── -->
 <section class="section" id="tab-journey">
-  <div class="sec-head">
-    <h2 class="sec-title">The <em>Journey</em></h2>
-    <p class="sec-sub">From icy Himalayan glacier to warm Bay of Bengal — every major city and landmark on Ganga's path, colour-coded by water quality.</p>
-  </div>
+  <div class="sec-head"><h2 class="sec-title">The <em>Journey</em></h2><p class="sec-sub">From icy Himalayan glacier to warm Bay of Bengal — every major city colour-coded by water quality.</p></div>
   <div class="timeline" id="timeline"></div>
 </section>
 
-<!-- ── TAB 3: POLLUTION ── -->
 <section class="section" id="tab-pollution">
-  <div class="sec-head">
-    <h2 class="sec-title">Pollution <em>Analysis</em></h2>
-    <p class="sec-sub">BOD (Biochemical Oxygen Demand) is the key metric. Acceptable limit: 3 mg/L. Kanpur and Varanasi breach safe limits by 15–20x. Namami Gange (₹20,000 Cr project) has been working since 2014 to reverse this.</p>
-  </div>
+  <div class="sec-head"><h2 class="sec-title">Pollution <em>Analysis</em></h2><p class="sec-sub">BOD (Biochemical Oxygen Demand) — safe limit: 3 mg/L. Kanpur and Varanasi breach safe limits by 15–20x.</p></div>
   <div id="pollutionBars" style="margin-top:1rem"></div>
   <div class="grid-2" style="margin-top:1.5rem">
-    <div class="card">
-      <div class="card-label">Top Pollution Sources</div>
-      <table class="info-table">
-        <tr><td>Municipal Sewage (Naalas)</td><td>45%</td></tr>
-        <tr><td>Industrial Effluents</td><td>30%</td></tr>
-        <tr><td>Agricultural Run-off</td><td>15%</td></tr>
-        <tr><td>Solid Waste / Religious</td><td>10%</td></tr>
-      </table>
-    </div>
-    <div class="card">
-      <div class="card-label">BOD Levels (mg/L) — Safe limit: &lt;3</div>
-      <table class="info-table">
-        <tr><td>Rishikesh</td><td style="color:#00e89a">0.7</td></tr>
-        <tr><td>Haridwar</td><td style="color:#00e89a">1.1</td></tr>
-        <tr><td>Kanpur</td><td style="color:#ff4757">48</td></tr>
-        <tr><td>Varanasi</td><td style="color:#ff4757">65</td></tr>
-        <tr><td>Patna</td><td style="color:#fd9644">30</td></tr>
-        <tr><td>Kolkata (Hooghly)</td><td style="color:#f9ca24">15</td></tr>
-      </table>
-    </div>
-    <div class="card">
-      <div class="card-label">Namami Gange Project (2014–2024)</div>
-      <table class="info-table">
-        <tr><td>Total Budget</td><td>₹20,000 Crore</td></tr>
-        <tr><td>STPs (Treatment Plants) Built</td><td>150+</td></tr>
-        <tr><td>Ghats Renovated</td><td>250+</td></tr>
-        <tr><td>Villages Covered (ODF)</td><td>4,000+</td></tr>
-      </table>
-    </div>
-    <div class="card">
-      <div class="card-label">Kanpur — Most Critical City</div>
-      <div class="card-sub" style="margin-top:0.5rem;line-height:1.7">
-        400+ tanneries dump chromium-laced wastewater directly. Leather industry generates ~50 MLD toxic effluent daily.
-        BOD reaches 65 mg/L — 21x above safe limit. Jajmau drain alone carries sewage from 5 lakh people.
-      </div>
-    </div>
+    <div class="card"><div class="card-label">Top Pollution Sources</div><table class="info-table"><tr><td>Municipal Sewage</td><td>45%</td></tr><tr><td>Industrial Effluents</td><td>30%</td></tr><tr><td>Agricultural Run-off</td><td>15%</td></tr><tr><td>Solid Waste / Religious</td><td>10%</td></tr></table></div>
+    <div class="card"><div class="card-label">BOD Levels (mg/L) — Safe: &lt;3</div><table class="info-table"><tr><td>Rishikesh</td><td style="color:#00e89a">0.7</td></tr><tr><td>Haridwar</td><td style="color:#00e89a">1.1</td></tr><tr><td>Kanpur</td><td style="color:#ff4757">48</td></tr><tr><td>Varanasi</td><td style="color:#ff4757">65</td></tr><tr><td>Patna</td><td style="color:#fd9644">30</td></tr><tr><td>Kolkata</td><td style="color:#f9ca24">15</td></tr></table></div>
+    <div class="card"><div class="card-label">Namami Gange Project (2014–2024)</div><table class="info-table"><tr><td>Total Budget</td><td>₹20,000 Crore</td></tr><tr><td>STPs Built</td><td>150+</td></tr><tr><td>Ghats Renovated</td><td>250+</td></tr><tr><td>Villages Covered</td><td>4,000+</td></tr></table></div>
+    <div class="card"><div class="card-label">Kanpur — Most Critical</div><div class="card-sub" style="margin-top:0.5rem;line-height:1.7">400+ tanneries dump chromium-laced wastewater. BOD reaches 65 mg/L — 21x above safe limit. Jajmau drain carries sewage from 5 lakh people.</div></div>
   </div>
 </section>
 
-<!-- ── TAB 4: TRIBUTARIES ── -->
 <section class="section" id="tab-tributaries">
-  <div class="sec-head">
-    <h2 class="sec-title">Tributary <em>Rivers</em></h2>
-    <p class="sec-sub">Ganga grows mightier at every confluence. These rivers — some crystal-clean from glaciers, some carrying city pollution — join the main stem across 2,500 km.</p>
-  </div>
+  <div class="sec-head"><h2 class="sec-title">Tributary <em>Rivers</em></h2><p class="sec-sub">Ganga grows mightier at every confluence across 2,500 km.</p></div>
   <div id="tributaryList"></div>
 </section>
 
-<!-- ── TAB 5: FISH ── -->
 <section class="section" id="tab-fish">
-  <div class="sec-head">
-    <h2 class="sec-title">Fish <em>Species</em></h2>
-    <p class="sec-sub">The Ganga basin hosts 140+ fish species. Clean upper reaches harbour Mahseer and Golden Mahseer; the middle Gangetic plains are rich in Rohu and Catla; the Gangetic Dolphin (Susu) is India's National Aquatic Animal.</p>
-  </div>
+  <div class="sec-head"><h2 class="sec-title">Fish <em>Species</em></h2><p class="sec-sub">The Ganga basin hosts 140+ fish species. Gangetic Dolphin is India's National Aquatic Animal.</p></div>
   <div class="grid-4" id="fishGrid"></div>
 </section>
 
-<!-- ── TAB 6: DEPTH ── -->
 <section class="section" id="tab-depth">
-  <div class="sec-head">
-    <h2 class="sec-title">Depth &amp; <em>Width</em></h2>
-    <p class="sec-sub">Depth varies dramatically — from ankle-deep mountain streams to 35m channels near Patna. Monsoon (June–Sept) triples average depth everywhere.</p>
-  </div>
+  <div class="sec-head"><h2 class="sec-title">Depth &amp; <em>Width</em></h2><p class="sec-sub">Depth varies from ankle-deep mountain streams to 35m channels near Patna.</p></div>
   <div id="depthBars" style="margin-top:1rem"></div>
   <div class="grid-2" style="margin-top:1.5rem">
-    <div class="card">
-      <div class="card-label">Width Along the River</div>
-      <table class="info-table">
-        <tr><td>Uttarkashi</td><td>30–50 m</td></tr>
-        <tr><td>Rishikesh</td><td>100–150 m</td></tr>
-        <tr><td>Haridwar</td><td>200–300 m</td></tr>
-        <tr><td>Prayagraj</td><td>500–800 m</td></tr>
-        <tr><td>Varanasi</td><td>600–900 m</td></tr>
-        <tr><td>Patna</td><td>1–2 km</td></tr>
-        <tr><td>Sundarbans Delta</td><td>15–25 km</td></tr>
-      </table>
-    </div>
-    <div class="card">
-      <div class="card-label">Dry Season vs Monsoon Depth</div>
-      <table class="info-table">
-        <tr><td>Haridwar (Dry)</td><td style="color:#f9ca24">4–5 m</td></tr>
-        <tr><td>Haridwar (Monsoon)</td><td style="color:#00c8ff">10–15 m</td></tr>
-        <tr><td>Prayagraj (Dry)</td><td style="color:#f9ca24">10–15 m</td></tr>
-        <tr><td>Prayagraj (Monsoon)</td><td style="color:#00c8ff">30–35 m</td></tr>
-        <tr><td>Varanasi (Dry)</td><td style="color:#f9ca24">20–25 m</td></tr>
-        <tr><td>Varanasi (Monsoon)</td><td style="color:#00c8ff">40–45 m</td></tr>
-        <tr><td>Patna (Monsoon)</td><td style="color:#00c8ff">50+ m</td></tr>
-      </table>
-    </div>
+    <div class="card"><div class="card-label">Width Along the River</div><table class="info-table"><tr><td>Uttarkashi</td><td>30–50 m</td></tr><tr><td>Rishikesh</td><td>100–150 m</td></tr><tr><td>Haridwar</td><td>200–300 m</td></tr><tr><td>Prayagraj</td><td>500–800 m</td></tr><tr><td>Varanasi</td><td>600–900 m</td></tr><tr><td>Patna</td><td>1–2 km</td></tr><tr><td>Sundarbans Delta</td><td>15–25 km</td></tr></table></div>
+    <div class="card"><div class="card-label">Dry vs Monsoon Depth</div><table class="info-table"><tr><td>Haridwar (Dry)</td><td style="color:#f9ca24">4–5 m</td></tr><tr><td>Haridwar (Monsoon)</td><td style="color:#00c8ff">10–15 m</td></tr><tr><td>Prayagraj (Dry)</td><td style="color:#f9ca24">10–15 m</td></tr><tr><td>Prayagraj (Monsoon)</td><td style="color:#00c8ff">30–35 m</td></tr><tr><td>Varanasi (Dry)</td><td style="color:#f9ca24">20–25 m</td></tr><tr><td>Varanasi (Monsoon)</td><td style="color:#00c8ff">40–45 m</td></tr><tr><td>Patna (Monsoon)</td><td style="color:#00c8ff">50+ m</td></tr></table></div>
   </div>
 </section>
 
-<!-- ── TAB 7: FLOOD ── -->
 <section class="section" id="tab-flood">
-  <div class="sec-head">
-    <h2 class="sec-title">Flood <em>Zones</em></h2>
-    <p class="sec-sub">Every monsoon, Ganga and its tributaries inundate vast stretches of the plains. Bihar alone loses thousands of crores annually to floods. The Kosi river — called "Sorrow of Bihar" — shifts its course by 100+ km in severe floods.</p>
-  </div>
+  <div class="sec-head"><h2 class="sec-title">Flood <em>Zones</em></h2><p class="sec-sub">Every monsoon, Ganga and its tributaries inundate vast stretches of the plains.</p></div>
   <div id="floodList"></div>
 </section>
 
-<!-- FOOTER -->
 <footer class="site-footer">
-  <div class="footer-brand">
-    Ganga River Explorer &nbsp;·&nbsp; Built by <a href="https://signed.emem.dev" target="_blank">signed.emem.dev</a>
-  </div>
-  <div class="footer-note">Data · CPCB · NMCG · NRCD · GSI &nbsp;|&nbsp; Open Source · GitHub Pages Ready</div>
+  <div class="footer-brand">Ganga River Explorer &nbsp;·&nbsp; Built by <a href="https://signed.emem.dev" target="_blank">signed.emem.dev</a></div>
+  <div class="footer-note">Data · CPCB · NMCG · NRCD · GSI &nbsp;|&nbsp; GitHub Pages</div>
 </footer>
 
 <script>
-// ─────────────────────────────────────────
-// DATA
-// ─────────────────────────────────────────
-const CITIES = [
-  { name:'Gangotri', state:'Uttarakhand', km:0, lat:30.99, lng:78.94,
-    pollution:'clean', pct:3,
-    tags:[{t:'Source / Origin',bg:'rgba(0,232,154,0.15)',c:'#00e89a'},{t:'3892m Altitude',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'}],
-    depth:'0.3–1 m', width:'5–10 m', fish:'Snowtrout',
-    desc:'Ganga originates as Bhagirathi from Gangotri Glacier (Gaumukh). Water is glacial — crystal clear, ice cold. It is not yet called "Ganga" here.' },
-  { name:'Uttarkashi', state:'Uttarakhand', km:80, lat:30.73, lng:78.45,
-    pollution:'clean', pct:7,
-    tags:[{t:'Hill Town',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'}],
-    depth:'1–3 m', width:'30–50 m', fish:'Mahseer, Snowtrout',
-    desc:'First major town. River flows through a gorge. Water remains exceptionally clean — BOD < 1 mg/L. Some local tourism activity.' },
-  { name:'Tehri Dam', state:'Uttarakhand', km:170, lat:30.38, lng:78.48,
-    pollution:'clean', pct:10,
-    tags:[{t:'Dam — 260m',bg:'rgba(155,89,182,0.15)',c:'#a29bfe'},{t:'Asia\'s 2nd Largest',bg:'rgba(155,89,182,0.1)',c:'#a29bfe'}],
-    depth:'Reservoir: 260m', width:'Reservoir: ~1 km', fish:'Carp, Rohu (reservoir)',
-    desc:'Tehri Dam creates a massive reservoir. Hydropower: 2,400 MW. River flow controlled here. Bhilangana River joins Bhagirathi just upstream.' },
-  { name:'Devprayag', state:'Uttarakhand', km:210, lat:30.15, lng:78.60,
-    pollution:'clean', pct:8,
-    tags:[{t:'Panch Prayag',bg:'rgba(0,232,154,0.15)',c:'#00e89a'},{t:'Bhagirathi + Alaknanda',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'}],
-    depth:'4–6 m', width:'40–70 m', fish:'Mahseer, Golden Mahseer',
-    desc:'Sacred confluence where Bhagirathi meets Alaknanda — from this point the river is officially called GANGA. One of the Panch Prayags.' },
-  { name:'Rishikesh', state:'Uttarakhand', km:250, lat:30.09, lng:78.27,
-    pollution:'clean', pct:12,
-    tags:[{t:'Yoga Capital',bg:'rgba(0,232,154,0.15)',c:'#00e89a'},{t:'Adventure Hub',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'}],
-    depth:'3–5 m', width:'100–150 m', fish:'Mahseer, Goonch Catfish',
-    desc:'World yoga capital. Lakshman Jhula bridge. Water still clean (BOD 0.7). Last major clean stretch before plains. White water rafting popular here.' },
-  { name:'Haridwar', state:'Uttarakhand', km:314, lat:29.95, lng:78.16,
-    pollution:'moderate', pct:28,
-    tags:[{t:'Kumbh Mela',bg:'rgba(249,202,36,0.15)',c:'#f9ca24'},{t:'Ganga Enters Plains',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'}],
-    depth:'4–6 m', width:'200–300 m', fish:'Rohu, Catla, Mahseer',
-    desc:'Ganga descends from mountains into the Indo-Gangetic Plains. Har Ki Pauri ghat — millions attend Ganga Aarti daily. Water quality starts declining due to city sewage.' },
-  { name:'Bijnor', state:'Uttar Pradesh', km:350, lat:29.37, lng:78.13,
-    pollution:'moderate', pct:32,
-    tags:[{t:'Bijnor Barrage',bg:'rgba(249,202,36,0.1)',c:'#f9ca24'}],
-    depth:'5–8 m', width:'250–400 m', fish:'Rohu, Hilsa (seasonal)',
-    desc:'Bijnor Headworks (barrage) diverts water for irrigation. Eastern Ganga Canal originates here. City sewage increases pollution load.' },
-  { name:'Kannauj', state:'Uttar Pradesh', km:700, lat:27.05, lng:79.91,
-    pollution:'high', pct:55,
-    tags:[{t:'Ramganga Confluence',bg:'rgba(253,150,68,0.15)',c:'#fd9644'},{t:'Perfume City',bg:'rgba(249,202,36,0.1)',c:'#f9ca24'}],
-    depth:'8–12 m', width:'300–500 m', fish:'Rohu, Catla, Singhara',
-    desc:'Ramganga river joins from the left. Perfume (ittar) industry famous here. Pollution rising significantly — untreated municipal waste discharged.' },
-  { name:'Kanpur', state:'Uttar Pradesh', km:875, lat:26.47, lng:80.35,
-    pollution:'critical', pct:95,
-    tags:[{t:'⚠ Most Polluted',bg:'rgba(255,71,87,0.2)',c:'#ff4757'},{t:'Leather Industry',bg:'rgba(192,57,43,0.2)',c:'#ff4757'}],
-    depth:'10–15 m', width:'400–600 m', fish:'Very few — mostly pollution tolerant species',
-    desc:'400+ tanneries discharge chromium and heavy metals. Jajmau drain carries 50 MLD toxic effluent. BOD: 48–65 mg/L — 21x above safe limit. Single worst stretch of Ganga.' },
-  { name:'Prayagraj', state:'Uttar Pradesh', km:1000, lat:25.43, lng:81.88,
-    pollution:'high', pct:72,
-    tags:[{t:'Triveni Sangam',bg:'rgba(249,202,36,0.15)',c:'#f9ca24'},{t:'Maha Kumbh',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'}],
-    depth:'12–18 m', width:'500–800 m', fish:'Rohu, Catla, Freshwater Shark (rare)',
-    desc:'Ganga, Yamuna & mythical Saraswati meet here. Maha Kumbh Mela (2025) — world\'s largest human gathering. Yamuna brings its own heavy pollution from Delhi-Agra.' },
-  { name:'Varanasi (Kashi)', state:'Uttar Pradesh', km:1090, lat:25.32, lng:83.01,
-    pollution:'critical', pct:90,
-    tags:[{t:'⚠ Critical Pollution',bg:'rgba(255,71,87,0.2)',c:'#ff4757'},{t:'84 Ghats',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'},{t:'3000+ Years Old',bg:'rgba(155,89,182,0.1)',c:'#a29bfe'}],
-    depth:'20–28 m', width:'600–900 m', fish:'Goonch, Rohu (stressed population)',
-    desc:'World\'s oldest living city. 84 ghats. 150+ MLD untreated sewage daily. BOD: 65 mg/L. Manikarnika Ghat — cremation 24/7. Despite pollution, millions bathe daily for spiritual purification.' },
-  { name:'Ghazipur', state:'Uttar Pradesh', km:1110, lat:25.58, lng:83.58,
-    pollution:'high', pct:68,
-    tags:[{t:'Gomti Confluence',bg:'rgba(253,150,68,0.15)',c:'#fd9644'}],
-    depth:'18–25 m', width:'600–800 m', fish:'Rohu, Catla',
-    desc:'Gomti River from Lucknow joins here, adding more pollution. Ghazipur is UP-Bihar border area. Lord Cornwallis (British) is buried here.' },
-  { name:'Patna', state:'Bihar', km:1200, lat:25.60, lng:85.12,
-    pollution:'high', pct:65,
-    tags:[{t:'Bihar Capital',bg:'rgba(253,150,68,0.15)',c:'#fd9644'},{t:'Flood Risk',bg:'rgba(255,71,87,0.15)',c:'#ff4757'}],
-    depth:'25–35 m', width:'1–2 km', fish:'Singhara, Rohu, Hilsa',
-    desc:'Bihar\'s capital. Ganga widens dramatically — up to 2 km in dry season, 5+ km in floods. Gandak and Son rivers join nearby. Sonepur Mela — world\'s largest cattle fair — held at Gandak-Ganga confluence.' },
-  { name:'Bhagalpur', state:'Bihar/Jharkhand border', km:1400, lat:25.25, lng:86.98,
-    pollution:'high', pct:60,
-    tags:[{t:'Dolphin Sanctuary',bg:'rgba(0,232,154,0.15)',c:'#00e89a'},{t:'Silk City',bg:'rgba(155,89,182,0.1)',c:'#a29bfe'}],
-    depth:'18–25 m', width:'1–1.5 km', fish:'Gangetic Dolphin (Susu), Hilsa, Rohu',
-    desc:'Vikramshila Gangetic Dolphin Sanctuary — India\'s only river dolphin sanctuary. Silk (tussar) weaving famous. Ganga touches Jharkhand\'s northern border here.' },
-  { name:'Farakka Barrage', state:'West Bengal', km:1540, lat:24.81, lng:87.92,
-    pollution:'moderate', pct:38,
-    tags:[{t:'India–Bangladesh',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'},{t:'Controversial',bg:'rgba(249,202,36,0.15)',c:'#f9ca24'}],
-    depth:'15–20 m', width:'1.5 km', fish:'Hilsa (migrating), Rohu',
-    desc:'River splits — one arm becomes Hooghly (India), other becomes Padma (Bangladesh). Fish migration blocked; Hilsa population has declined 80%. Subject of Indo-Bangladesh water treaty disputes.' },
-  { name:'Murshidabad', state:'West Bengal', km:1600, lat:24.18, lng:88.27,
-    pollution:'moderate', pct:35,
-    tags:[{t:'Nawab Capital',bg:'rgba(155,89,182,0.1)',c:'#a29bfe'},{t:'Historical',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'}],
-    depth:'12–18 m', width:'1 km', fish:'Hilsa, Rohu, Catla',
-    desc:'Former capital of Bengal Nawabs (pre-British). Mahananda River joins nearby. River bank erosion (bhanga) destroys thousands of homes every monsoon.' },
-  { name:'Kolkata', state:'West Bengal', km:2200, lat:22.57, lng:88.36,
-    pollution:'moderate', pct:42,
-    tags:[{t:'Hooghly River',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'},{t:'Port City',bg:'rgba(249,202,36,0.1)',c:'#f9ca24'}],
-    depth:'10–14 m', width:'500–800 m', fish:'Hilsa, Freshwater Prawn, Catfish',
-    desc:'Ganga reaches Kolkata as the Hooghly. Major port activity. Damodar River (called "Sorrow of Bengal") joins at Tribeni. Tidal influence begins — water level changes 4–6m with tides.' },
-  { name:'Sundarbans Delta', state:'West Bengal / Bangladesh', km:2500, lat:21.95, lng:88.90,
-    pollution:'clean', pct:8,
-    tags:[{t:'UNESCO Heritage',bg:'rgba(0,232,154,0.15)',c:'#00e89a'},{t:'Royal Bengal Tiger',bg:'rgba(249,202,36,0.1)',c:'#f9ca24'},{t:'Brahmaputra Joins',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'}],
-    depth:'5–12 m', width:'15–25 km', fish:'Irrawaddy Dolphin, Saltwater Crocodile, Prawn',
-    desc:'World\'s largest mangrove forest. Ganga joins Brahmaputra here. Royal Bengal Tiger, Saltwater Crocodile, Irrawaddy Dolphin. River branches into hundreds of channels (distributaries). Becomes the Bay of Bengal.' },
-];
+const CITIES=[{name:'Gangotri',state:'Uttarakhand',km:0,lat:30.99,lng:78.94,pollution:'clean',pct:3,tags:[{t:'Source / Origin',bg:'rgba(0,232,154,0.15)',c:'#00e89a'},{t:'3892m Altitude',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'}],depth:'0.3–1 m',width:'5–10 m',fish:'Snowtrout',desc:'Ganga originates as Bhagirathi from Gangotri Glacier. Water is glacial — crystal clear, ice cold.'},{name:'Uttarkashi',state:'Uttarakhand',km:80,lat:30.73,lng:78.45,pollution:'clean',pct:7,tags:[{t:'Hill Town',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'}],depth:'1–3 m',width:'30–50 m',fish:'Mahseer, Snowtrout',desc:'First major town. River flows through a gorge. Water remains exceptionally clean — BOD < 1 mg/L.'},{name:'Tehri Dam',state:'Uttarakhand',km:170,lat:30.38,lng:78.48,pollution:'clean',pct:10,tags:[{t:'Dam 260m',bg:'rgba(155,89,182,0.15)',c:'#a29bfe'},{t:"Asia's 2nd Largest",bg:'rgba(155,89,182,0.1)',c:'#a29bfe'}],depth:'Reservoir: 260m',width:'~1 km',fish:'Carp, Rohu',desc:'Tehri Dam creates a massive reservoir. Hydropower: 2,400 MW. River flow controlled here.'},{name:'Devprayag',state:'Uttarakhand',km:210,lat:30.15,lng:78.60,pollution:'clean',pct:8,tags:[{t:'Panch Prayag',bg:'rgba(0,232,154,0.15)',c:'#00e89a'},{t:'Bhagirathi+Alaknanda',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'}],depth:'4–6 m',width:'40–70 m',fish:'Mahseer',desc:'Sacred confluence — from this point the river is officially called GANGA.'},{name:'Rishikesh',state:'Uttarakhand',km:250,lat:30.09,lng:78.27,pollution:'clean',pct:12,tags:[{t:'Yoga Capital',bg:'rgba(0,232,154,0.15)',c:'#00e89a'},{t:'Adventure Hub',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'}],depth:'3–5 m',width:'100–150 m',fish:'Mahseer, Goonch',desc:'World yoga capital. Lakshman Jhula bridge. Water still clean (BOD 0.7). Last clean stretch before plains.'},{name:'Haridwar',state:'Uttarakhand',km:314,lat:29.95,lng:78.16,pollution:'moderate',pct:28,tags:[{t:'Kumbh Mela',bg:'rgba(249,202,36,0.15)',c:'#f9ca24'},{t:'Ganga Enters Plains',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'}],depth:'4–6 m',width:'200–300 m',fish:'Rohu, Catla, Mahseer',desc:'Ganga descends from mountains into the Indo-Gangetic Plains. Har Ki Pauri ghat.'},{name:'Bijnor',state:'Uttar Pradesh',km:350,lat:29.37,lng:78.13,pollution:'moderate',pct:32,tags:[{t:'Bijnor Barrage',bg:'rgba(249,202,36,0.1)',c:'#f9ca24'}],depth:'5–8 m',width:'250–400 m',fish:'Rohu, Hilsa',desc:'Bijnor Headworks diverts water for irrigation. Eastern Ganga Canal originates here.'},{name:'Kannauj',state:'Uttar Pradesh',km:700,lat:27.05,lng:79.91,pollution:'high',pct:55,tags:[{t:'Ramganga Confluence',bg:'rgba(253,150,68,0.15)',c:'#fd9644'},{t:'Perfume City',bg:'rgba(249,202,36,0.1)',c:'#f9ca24'}],depth:'8–12 m',width:'300–500 m',fish:'Rohu, Catla, Singhara',desc:'Ramganga joins here. Perfume (ittar) industry famous. Pollution rising significantly.'},{name:'Kanpur',state:'Uttar Pradesh',km:875,lat:26.47,lng:80.35,pollution:'critical',pct:95,tags:[{t:'⚠ Most Polluted',bg:'rgba(255,71,87,0.2)',c:'#ff4757'},{t:'Leather Industry',bg:'rgba(192,57,43,0.2)',c:'#ff4757'}],depth:'10–15 m',width:'400–600 m',fish:'Very few species',desc:'400+ tanneries discharge chromium. BOD: 48–65 mg/L — 21x above safe limit.'},{name:'Prayagraj',state:'Uttar Pradesh',km:1000,lat:25.43,lng:81.88,pollution:'high',pct:72,tags:[{t:'Triveni Sangam',bg:'rgba(249,202,36,0.15)',c:'#f9ca24'},{t:'Maha Kumbh',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'}],depth:'12–18 m',width:'500–800 m',fish:'Rohu, Catla',desc:"Ganga, Yamuna & mythical Saraswati meet here. World's largest human gathering."},{name:'Varanasi',state:'Uttar Pradesh',km:1090,lat:25.32,lng:83.01,pollution:'critical',pct:90,tags:[{t:'⚠ Critical',bg:'rgba(255,71,87,0.2)',c:'#ff4757'},{t:'84 Ghats',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'}],depth:'20–28 m',width:'600–900 m',fish:'Goonch, Rohu',desc:"World's oldest living city. 84 ghats. 150+ MLD untreated sewage daily. BOD: 65 mg/L."},{name:'Ghazipur',state:'Uttar Pradesh',km:1110,lat:25.58,lng:83.58,pollution:'high',pct:68,tags:[{t:'Gomti Confluence',bg:'rgba(253,150,68,0.15)',c:'#fd9644'}],depth:'18–25 m',width:'600–800 m',fish:'Rohu, Catla',desc:'Gomti River joins here adding more pollution. UP-Bihar border area.'},{name:'Patna',state:'Bihar',km:1200,lat:25.60,lng:85.12,pollution:'high',pct:65,tags:[{t:'Bihar Capital',bg:'rgba(253,150,68,0.15)',c:'#fd9644'},{t:'Flood Risk',bg:'rgba(255,71,87,0.15)',c:'#ff4757'}],depth:'25–35 m',width:'1–2 km',fish:'Singhara, Rohu, Hilsa',desc:"Bihar's capital. Ganga widens dramatically — up to 2 km dry season, 5+ km in floods."},{name:'Bhagalpur',state:'Bihar/Jharkhand',km:1400,lat:25.25,lng:86.98,pollution:'high',pct:60,tags:[{t:'Dolphin Sanctuary',bg:'rgba(0,232,154,0.15)',c:'#00e89a'},{t:'Silk City',bg:'rgba(155,89,182,0.1)',c:'#a29bfe'}],depth:'18–25 m',width:'1–1.5 km',fish:'Gangetic Dolphin, Hilsa, Rohu',desc:"Vikramshila Gangetic Dolphin Sanctuary — India's only river dolphin sanctuary."},{name:'Farakka',state:'West Bengal',km:1540,lat:24.81,lng:87.92,pollution:'moderate',pct:38,tags:[{t:'India–Bangladesh',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'},{t:'Controversial',bg:'rgba(249,202,36,0.15)',c:'#f9ca24'}],depth:'15–20 m',width:'1.5 km',fish:'Hilsa, Rohu',desc:'River splits — Hooghly (India) and Padma (Bangladesh). Fish migration blocked.'},{name:'Murshidabad',state:'West Bengal',km:1600,lat:24.18,lng:88.27,pollution:'moderate',pct:35,tags:[{t:'Nawab Capital',bg:'rgba(155,89,182,0.1)',c:'#a29bfe'}],depth:'12–18 m',width:'1 km',fish:'Hilsa, Rohu, Catla',desc:'Former capital of Bengal Nawabs. River bank erosion destroys thousands of homes annually.'},{name:'Kolkata',state:'West Bengal',km:2200,lat:22.57,lng:88.36,pollution:'moderate',pct:42,tags:[{t:'Hooghly River',bg:'rgba(0,200,255,0.1)',c:'#00c8ff'},{t:'Port City',bg:'rgba(249,202,36,0.1)',c:'#f9ca24'}],depth:'10–14 m',width:'500–800 m',fish:'Hilsa, Prawn, Catfish',desc:'Ganga reaches Kolkata as the Hooghly. Tidal influence — water level changes 4–6m.'},{name:'Sundarbans',state:'West Bengal/Bangladesh',km:2500,lat:21.95,lng:88.90,pollution:'clean',pct:8,tags:[{t:'UNESCO Heritage',bg:'rgba(0,232,154,0.15)',c:'#00e89a'},{t:'Royal Bengal Tiger',bg:'rgba(249,202,36,0.1)',c:'#f9ca24'}],depth:'5–12 m',width:'15–25 km',fish:'Irrawaddy Dolphin, Crocodile, Prawn',desc:"World's largest mangrove forest. Royal Bengal Tiger. Becomes the Bay of Bengal."}];
+const TRIBUTARIES=[{river:'Alaknanda',at:'Devprayag, Uttarakhand',side:'Right',origin:'Satopanth Glacier, near Badrinath',note:'Joins Bhagirathi to form the Ganga. Passes through 4 of the 5 Panch Prayags.',pollution:'Clean'},{river:'Tons (Tamasa)',at:'Uttarkashi area',side:'Left',origin:'Bandarpunch Glacier',note:'Largest tributary in Uttarakhand by volume. Carries clean glacial water.',pollution:'Clean'},{river:'Mandakini',at:'Rudraprayag, Uttarakhand',side:'Right',origin:'Kedarnath, Chorabari Glacier',note:'Flows past Kedarnath shrine. 2013 Kedarnath disaster caused by its flash flood.',pollution:'Clean'},{river:'Ramganga',at:'Kannauj (Farukhabad), UP',side:'Left',origin:'Dudhatauli, Pauri Garhwal',note:'Major UP tributary. Jim Corbett National Park on its banks.',pollution:'Moderate'},{river:'Yamuna',at:'Prayagraj, UP',side:'Right',origin:'Yamunotri Glacier, Uttarakhand',note:'Longest tributary (1,376 km). Carries HEAVY pollution from Delhi, Agra, Mathura.',pollution:'Critical'},{river:'Gomti',at:'Ghazipur, UP',side:'Left',origin:'Pilibhit district, UP',note:"Flows through Lucknow. Carries Lucknow's industrial and sewage waste.",pollution:'High'},{river:'Ghaghara',at:'Chapra, Bihar',side:'Left',origin:'Mapchachungo Glacier, Tibet/Nepal',note:'Largest northern tributary by volume. Massive flood contribution in Bihar.',pollution:'Moderate'},{river:'Son',at:'Arrah (Patna), Bihar',side:'Right',origin:'Amarkantak, MP',note:'Major peninsular tributary. Brings relatively clean water from highlands.',pollution:'Clean'},{river:'Gandak',at:'Sonepur, Bihar',side:'Left',origin:'Mustang, Nepal',note:"Nepal's major river. Sonepur Mela — world's biggest cattle fair at confluence.",pollution:'Moderate'},{river:'Kosi',at:'Kursela, Bihar',side:'Left',origin:'Tibet — Everest region',note:'"Sorrow of Bihar." Shifted 113 km westward over 250 years. 2008 floods hit 3M people.',pollution:'Moderate'},{river:'Mahananda',at:'Malda, West Bengal',side:'Left',origin:'Mahaldiram Hill, Darjeeling',note:'West Bengal major tributary. Flows through Siliguri and Malda.',pollution:'Moderate'},{river:'Damodar',at:'Tribeni, West Bengal',side:'Right',origin:'Chota Nagpur Plateau, Jharkhand',note:'"Sorrow of Bengal." Heavy industrial pollution from coal/steel belt.',pollution:'High'}];
+const FISHES=[{name:'Hilsa (Ilish)',zone:'Farakka → Prayagraj',icon:'🐟',status:'Critically Endangered',sc:'#ff4757',note:'Migratory fish. Blocked by Farakka Barrage. Population ↓80% since 1970s.'},{name:'Gangetic Dolphin',zone:'Bhagalpur — Vikramshila',icon:'🐬',status:'Endangered',sc:'#fd9644',note:"India's National Aquatic Animal. Only ~2,600 left. Blind — navigates by sonar."},{name:'Rohu',zone:'Entire Gangetic Plain',icon:'🐠',status:'Common',sc:'#00e89a',note:'Most important food fish. Thrives from Haridwar to Kolkata.'},{name:'Catla',zone:'Middle Gangetic Plains',icon:'🐡',status:'Common',sc:'#00e89a',note:'Second largest food fish. Surface feeder.'},{name:'Golden Mahseer',zone:'Rishikesh — Haridwar',icon:'🎣',status:'Vulnerable',sc:'#f9ca24',note:'"Tiger of the River." Can reach 50 kg. Needs clean fast water.'},{name:'Goonch Catfish',zone:'Rishikesh — Haridwar',icon:'🐟',status:'Data Deficient',sc:'#f9ca24',note:'Can grow to 2m. Largest Indian catfish.'},{name:'Freshwater Shark',zone:'Prayagraj area',icon:'🦈',status:'Critically Rare',sc:'#ff4757',note:'Wallago attu — almost extinct due to overfishing + pollution.'},{name:'Singhara',zone:'Bihar, UP',icon:'🐟',status:'Common',sc:'#00e89a',note:'Small catfish. Very common in Bihar markets.'},{name:'Clupisoma',zone:'Throughout',icon:'🐠',status:'Common',sc:'#00e89a',note:'Glassfish / River Sprat. Important prey species.'},{name:'Irrawaddy Dolphin',zone:'Sundarbans Delta',icon:'🐬',status:'Endangered',sc:'#fd9644',note:'Marine dolphin that enters the Ganga Delta.'},{name:'Giant River Prawn',zone:'Sundarbans → Kolkata',icon:'🦐',status:'Common',sc:'#00e89a',note:'Grows to 30cm. Important commercially.'},{name:'Snowtrout',zone:'Gangotri — Rishikesh',icon:'🐟',status:'Locally Common',sc:'#00e89a',note:'Cold-water specialist. Cannot survive below Haridwar.'}];
+const DEPTHS=[{loc:'Gangotri (Source)',dry:'0.3–1 m',bar:2,col:'#6dd5fa'},{loc:'Rishikesh',dry:'3–5 m',bar:10,col:'#3498db'},{loc:'Haridwar',dry:'4–6 m',bar:14,col:'#2980b9'},{loc:'Kannauj',dry:'8–12 m',bar:22,col:'#1f618d'},{loc:'Kanpur',dry:'10–15 m',bar:28,col:'#1a5276'},{loc:'Prayagraj',dry:'12–18 m',bar:38,col:'#17527a'},{loc:'Varanasi',dry:'20–28 m',bar:65,col:'#0e3f60'},{loc:'Patna',dry:'25–35 m',bar:82,col:'#0a2d45'},{loc:'Bhagalpur',dry:'18–25 m',bar:55,col:'#1a5276'},{loc:'Farakka',dry:'15–20 m',bar:45,col:'#2471a3'},{loc:'Kolkata',dry:'10–14 m',bar:32,col:'#4a90d9'},{loc:'Sundarbans',dry:'5–12 m',bar:22,col:'#7fb3d3'}];
+const POLLUTION_BARS=[{loc:'Gangotri',pct:3,col:'#00e89a',lbl:'Pristine'},{loc:'Rishikesh',pct:10,col:'#00e89a',lbl:'Very Clean'},{loc:'Haridwar',pct:28,col:'#f9ca24',lbl:'Moderate'},{loc:'Bijnor',pct:35,col:'#f9ca24',lbl:'Moderate'},{loc:'Kannauj',pct:55,col:'#fd9644',lbl:'High'},{loc:'Kanpur',pct:95,col:'#ff4757',lbl:'Critical ⚠'},{loc:'Prayagraj',pct:72,col:'#fd9644',lbl:'High'},{loc:'Varanasi',pct:90,col:'#ff4757',lbl:'Critical ⚠'},{loc:'Ghazipur',pct:68,col:'#fd9644',lbl:'High'},{loc:'Patna',pct:65,col:'#fd9644',lbl:'High'},{loc:'Bhagalpur',pct:60,col:'#fd9644',lbl:'High'},{loc:'Farakka',pct:38,col:'#f9ca24',lbl:'Moderate'},{loc:'Kolkata',pct:42,col:'#f9ca24',lbl:'Moderate'},{loc:'Sundarbans',pct:8,col:'#00e89a',lbl:'Clean'}];
+const FLOODS=[{area:'Bihar Plains — Patna, Muzaffarpur, Darbhanga',sev:'Critical',sevc:'sev-high',desc:"Most flood-prone region in India. Kosi, Gandak, Bagmati collectively submerge 17 of Bihar's 38 districts every monsoon. 2008 Kosi breach affected 3.3 million people.",tags:['Kosi River','Gandak River','Annual Event','17 Districts','3.3M Displaced (2008)']},{area:'Prayagraj–Varanasi Belt, Uttar Pradesh',sev:'High',sevc:'sev-high',desc:'When Yamuna and Ganga both flood, the entire Gangetic plain drowns. Ghats at Varanasi go 6–8m underwater.',tags:['Yamuna Sangam','Ghats Submerge','2019: 30 districts']},{area:'Farrukhabad–Kannauj Stretch, UP',sev:'Moderate',sevc:'sev-med',desc:'Ramganga joining swells the Ganga. Low-lying khadar land floods every year — enriching soil with silt.',tags:['Ramganga Confluence','Khadar Flooding','Agricultural Impact']},{area:'Malda–Murshidabad, West Bengal',sev:'High',sevc:'sev-high',desc:'Ganga near Farakka — notorious for bank erosion (bhanga). Over 10,000 people lose homes annually in Malda.',tags:['Bank Erosion','10,000 Homes/Year','Farakka Effect']},{area:'Hooghly–Sundarbans, West Bengal',sev:'Moderate',sevc:'sev-med',desc:'Double threat: river flooding + storm surge from Bay of Bengal cyclones. Cyclone Amphan (2020) brought 5m storm surge.',tags:['Cyclone Amphan 2020','Storm Surge','Tidal Flooding','Sundarbans Shield']}];
 
-const TRIBUTARIES = [
-  { river:'Alaknanda', at:'Devprayag, Uttarakhand', side:'Right', origin:'Satopanth Glacier, near Badrinath', note:'Joins Bhagirathi to form the Ganga. Passes through 4 of the 5 Panch Prayags (Vishnuprayag, Nandaprayag, Karnaprayag, Rudraprayag).', pollution:'Clean' },
-  { river:'Tons (Tamasa)', at:'Uttarkashi area', side:'Left', origin:'Bandarpunch Glacier', note:'Largest tributary in Uttarakhand by volume. Carries clean glacial water.', pollution:'Clean' },
-  { river:'Mandakini', at:'Rudraprayag, Uttarakhand', side:'Right', origin:'Kedarnath, Chorabari Glacier', note:'Flows past Kedarnath shrine. 2013 Kedarnath disaster was caused by its flash flood.', pollution:'Clean' },
-  { river:'Ramganga', at:'Kannauj (Farukhabad), UP', side:'Left', origin:'Dudhatauli, Pauri Garhwal', note:'Major UP tributary. Jim Corbett National Park on its banks. Brings relatively clean water.', pollution:'Moderate' },
-  { river:'Yamuna', at:'Prayagraj, UP', side:'Right', origin:'Yamunotri Glacier, Uttarakhand', note:'Longest tributary (1,376 km). Carries HEAVY pollution from Delhi, Agra, Mathura. Delhi dumps 3,200 MLD sewage in it. Visually the most impactful confluence.', pollution:'Critical' },
-  { river:'Gomti', at:'Ghazipur, UP', side:'Left', origin:'Pilibhit district, UP', note:'Flows through Lucknow. Carries Lucknow\'s industrial and sewage waste. Highly polluted at confluence.', pollution:'High' },
-  { river:'Ghaghara (Ghaghra)', at:'Chapra, Bihar', side:'Left', origin:'Mapchachungo Glacier, Tibet/Nepal', note:'Largest northern tributary by volume. Nepal calls it Karnali. Massive flood contribution in Bihar monsoon.', pollution:'Moderate' },
-  { river:'Son', at:'Arrah (Patna), Bihar', side:'Right', origin:'Amarkantak, MP', note:'Major peninsular tributary. Brings relatively clean water from Jharkhand/MP highlands. Rich in minerals.', pollution:'Clean' },
-  { river:'Gandak (Narayani)', at:'Sonepur, Bihar', side:'Left', origin:'Mustang, Nepal (Dhaulagiri)', note:'Nepal\'s major river. Sonepur Mela — world\'s biggest cattle fair — at its Ganga confluence. Can cause severe floods in Bihar.', pollution:'Moderate' },
-  { river:'Kosi', at:'Kursela, Bihar', side:'Left', origin:'Tibet — feeds from Everest region', note:'Called "Sorrow of Bihar." Has shifted 113 km westward over 250 years. 2008 floods affected 3 million. Unpredictable — most dangerous tributary.', pollution:'Moderate' },
-  { river:'Mahananda', at:'Malda, West Bengal', side:'Left', origin:'Mahaldiram Hill, Darjeeling', note:'West Bengal\'s major tributary. Flows through Siliguri and Malda. Joins near Farakka.', pollution:'Moderate' },
-  { river:'Damodar', at:'Tribeni, West Bengal', side:'Right', origin:'Chota Nagpur Plateau, Jharkhand', note:'Called "Sorrow of Bengal." Jharkhand\'s coal/steel belt creates heavy industrial pollution. Now partially controlled by Damodar Valley Corporation (DVC) dams.', pollution:'High' },
-];
+const $=id=>document.getElementById(id);
+const dotCol={clean:'#00e89a',moderate:'#f9ca24',high:'#fd9644',critical:'#ff4757'};
+const lbl={clean:'Clean',moderate:'Moderate',high:'High Pollution',critical:'Critical ⚠'};
+const cardBg={clean:'rgba(0,232,154,0.04)',moderate:'rgba(249,202,36,0.04)',high:'rgba(253,150,68,0.06)',critical:'rgba(255,71,87,0.08)'};
+const cardBorder={clean:'rgba(0,232,154,0.15)',moderate:'rgba(249,202,36,0.15)',high:'rgba(253,150,68,0.2)',critical:'rgba(255,71,87,0.2)'};
 
-const FISHES = [
-  { name:'Hilsa (Ilish)', zone:'Farakka → Prayagraj', icon:'🐟', status:'Critically Endangered', sc:'#ff4757', note:'Migratory fish. Blocked by Farakka Barrage. Population ↓80% since 1970s.' },
-  { name:'Gangetic Dolphin (Susu)', zone:'Bhagalpur — Vikramshila', icon:'🐬', status:'Endangered', sc:'#fd9644', note:'India\'s National Aquatic Animal. Only ~2,600 left. Blind — navigates by sonar.' },
-  { name:'Rohu (Labeo rohita)', zone:'Entire Gangetic Plain', icon:'🐠', status:'Common', sc:'#00e89a', note:'Most important food fish. Thrives from Haridwar to Kolkata. Pollution-tolerant.' },
-  { name:'Catla', zone:'Middle Gangetic Plains', icon:'🐡', status:'Common', sc:'#00e89a', note:'Second largest food fish. Surface feeder. Found in ponds and river both.' },
-  { name:'Golden Mahseer', zone:'Rishikesh — Haridwar', icon:'🎣', status:'Vulnerable', sc:'#f9ca24', note:'Called "Tiger of the River." Can reach 50 kg. Prized sport fish. Needs clean fast water.' },
-  { name:'Goonch Catfish', zone:'Rishikesh — Haridwar', icon:'🐟', status:'Data Deficient', sc:'#f9ca24', note:'Can grow to 2m. Suspected of attacking humans at Haridwar ghats. Largest Indian catfish.' },
-  { name:'Freshwater Shark', zone:'Prayagraj area', icon:'🦈', status:'Critically Rare', sc:'#ff4757', note:'Wallago attu — apex predator. Almost extinct in Ganga due to overfishing + pollution.' },
-  { name:'Singhara (Bagrid)', zone:'Bihar, UP', icon:'🐟', status:'Common', sc:'#00e89a', note:'Small catfish. Very common in Bihar markets. Pollution-tolerant — thrives even in moderate pollution.' },
-  { name:'Clupisoma (Ailia)', zone:'Throughout', icon:'🐠', status:'Common', sc:'#00e89a', note:'Glassfish / River Sprat. Transparent small fish. Important prey species in the food web.' },
-  { name:'Irrawaddy Dolphin', zone:'Sundarbans Delta', icon:'🐬', status:'Endangered', sc:'#fd9644', note:'Marine dolphin that enters the Ganga Delta. Not the same as the Gangetic Dolphin (Susu).' },
-  { name:'Giant River Prawn', zone:'Sundarbans → Kolkata', icon:'🦐', status:'Common', sc:'#00e89a', note:'Macrobrachium rosenbergii. Grows to 30cm. Important commercially. Tidal influence area.' },
-  { name:'Snowtrout', zone:'Gangotri — Rishikesh', icon:'🐟', status:'Locally Common', sc:'#00e89a', note:'Cold-water specialist. Cannot survive below Haridwar. Pure glacial water only.' },
-];
+const tl=$('timeline');
+CITIES.forEach(c=>{const tags=c.tags.map(t=>`<span class="t-tag" style="background:${t.bg};color:${t.c}">${t.t}</span>`).join('');tl.innerHTML+=`<div class="t-node"><div class="t-dot" style="background:${dotCol[c.pollution]}"></div><div class="t-inner" style="background:${cardBg[c.pollution]};border-color:${cardBorder[c.pollution]}"><div class="t-top"><span class="t-name">${c.name}</span><span class="t-km">km ${c.km}</span></div><div class="t-state">${c.state}</div><div class="t-tags">${tags}</div><div class="t-desc">${c.desc}</div><div class="p-bar-wrap"><div class="p-bar-bg"><div class="p-bar-fill" style="width:${c.pct}%;background:${dotCol[c.pollution]}"></div></div><div class="p-lbl" style="color:${dotCol[c.pollution]}">${lbl[c.pollution]}</div></div></div></div>`;});
 
-const DEPTHS = [
-  { loc:'Gangotri (Source)', dry:'0.3–1 m', mon:'1–2 m', bar:2, col:'#6dd5fa' },
-  { loc:'Rishikesh', dry:'3–5 m', mon:'8–12 m', bar:10, col:'#3498db' },
-  { loc:'Haridwar', dry:'4–6 m', mon:'10–15 m', bar:14, col:'#2980b9' },
-  { loc:'Kannauj', dry:'8–12 m', mon:'20–25 m', bar:22, col:'#1f618d' },
-  { loc:'Kanpur', dry:'10–15 m', mon:'20–28 m', bar:28, col:'#1a5276' },
-  { loc:'Prayagraj', dry:'12–18 m', mon:'30–35 m', bar:38, col:'#17527a' },
-  { loc:'Varanasi', dry:'20–28 m', mon:'40–45 m', bar:65, col:'#0e3f60' },
-  { loc:'Patna', dry:'25–35 m', mon:'50+ m', bar:82, col:'#0a2d45' },
-  { loc:'Bhagalpur', dry:'18–25 m', mon:'35–40 m', bar:55, col:'#1a5276' },
-  { loc:'Farakka', dry:'15–20 m', mon:'30–35 m', bar:45, col:'#2471a3' },
-  { loc:'Kolkata (Hooghly)', dry:'10–14 m', mon:'18–22 m', bar:32, col:'#4a90d9' },
-  { loc:'Sundarbans', dry:'5–12 m', mon:'12–20 m', bar:22, col:'#7fb3d3' },
-];
+const pb=$('pollutionBars');
+POLLUTION_BARS.forEach(p=>{pb.innerHTML+=`<div class="poll-row"><div class="poll-loc">${p.loc}</div><div class="poll-bar-bg"><div class="poll-bar-fill" style="width:${p.pct}%;background:${p.col}">${p.pct}%</div></div><div class="poll-val" style="color:${p.col}">${p.lbl}</div></div>`;});
 
-const POLLUTION_BARS = [
-  { loc:'Gangotri', pct:3, col:'#00e89a', lbl:'Pristine' },
-  { loc:'Rishikesh', pct:10, col:'#00e89a', lbl:'Very Clean' },
-  { loc:'Haridwar', pct:28, col:'#f9ca24', lbl:'Moderate' },
-  { loc:'Bijnor', pct:35, col:'#f9ca24', lbl:'Moderate' },
-  { loc:'Kannauj', pct:55, col:'#fd9644', lbl:'High' },
-  { loc:'Kanpur', pct:95, col:'#ff4757', lbl:'Critical ⚠' },
-  { loc:'Prayagraj', pct:72, col:'#fd9644', lbl:'High' },
-  { loc:'Varanasi', pct:90, col:'#ff4757', lbl:'Critical ⚠' },
-  { loc:'Ghazipur', pct:68, col:'#fd9644', lbl:'High' },
-  { loc:'Patna', pct:65, col:'#fd9644', lbl:'High' },
-  { loc:'Bhagalpur', pct:60, col:'#fd9644', lbl:'High' },
-  { loc:'Farakka', pct:38, col:'#f9ca24', lbl:'Moderate' },
-  { loc:'Kolkata', pct:42, col:'#f9ca24', lbl:'Moderate' },
-  { loc:'Sundarbans', pct:8, col:'#00e89a', lbl:'Clean' },
-];
+const triList=$('tributaryList');
+const tribPollCol={Clean:'#00e89a',Moderate:'#f9ca24',High:'#fd9644',Critical:'#ff4757'};
+TRIBUTARIES.forEach(t=>{triList.innerHTML+=`<div class="trib-item" style="border-left-color:${tribPollCol[t.pollution]||'#00c8ff'}"><div><div class="trib-name">${t.river}</div><div class="trib-at">📍 ${t.at} · Origin: ${t.origin}</div></div><span class="trib-side">${t.side} Bank</span><div class="trib-note">${t.note} <span style="color:${tribPollCol[t.pollution]||'#00c8ff'};font-size:0.6rem"> · ${t.pollution}</span></div></div>`;});
 
-const FLOODS = [
-  { area:'Bihar Plains — Patna, Muzaffarpur, Darbhanga, Sitamarhi', sev:'Critical', sevc:'sev-high',
-    desc:'The most flood-prone region in India. Kosi, Gandak, Bagmati, Kamla-Balan and Ganga collectively submerge 17 of Bihar\'s 38 districts every monsoon. Kosi alone — "Sorrow of Bihar" — has shifted its course 113 km westward over 250 years, flooding unpredictably. 2008 Kosi breach affected 3.3 million people.',
-    tags:['Kosi River','Gandak River','Annual Event','17 Districts','3.3M Displaced (2008)'] },
-  { area:'Prayagraj–Varanasi Belt, Uttar Pradesh', sev:'High', sevc:'sev-high',
-    desc:'When Yamuna and Ganga both flood together, the entire Gangetic plain between Allahabad and Varanasi drowns. Ghats at Varanasi go 6–8m underwater. The 2013 flood at Kumbh affected pilgrims. 2019 floods submerged 30+ UP districts.',
-    tags:['Yamuna Sangam','Ghats Submerge','UP–Bihar Border Zone','2019: 30 districts'] },
-  { area:'Farrukhabad–Kannauj Stretch, Uttar Pradesh', sev:'Moderate', sevc:'sev-med',
-    desc:'Ramganga joining swells the Ganga significantly. Low-lying agricultural land (khadar) floods every year — actually enriching soil with silt. Villages on river islands (diyaras) evacuate every monsoon.',
-    tags:['Ramganga Confluence','Khadar Flooding','Diyara Villages','Agricultural Impact'] },
-  { area:'Malda–Murshidabad, West Bengal (Bank Erosion)', sev:'High', sevc:'sev-high',
-    desc:'The Ganga near Farakka is notorious for bank erosion (bhanga). The river cuts into its own banks destroying villages, farmland and even roads. Over 10,000 people lose their homes to erosion annually in Malda alone. River course shifts year to year.',
-    tags:['Bank Erosion','10,000 Homes/Year','Land Loss','Farakka Effect','Course Shifting'] },
-  { area:'Hooghly–24 Parganas–Sundarbans, West Bengal', sev:'Moderate', sevc:'sev-med',
-    desc:'Double threat: river flooding from the north AND storm surge from Bay of Bengal cyclones from the south. Cyclone Amphan (2020) brought 5m storm surge. Sundarbans mangroves absorb storm energy — their destruction would make flooding catastrophic. Tidal influence means high tide + flood discharge = severe inundation.',
-    tags:['Cyclone Amphan 2020','Storm Surge','Tidal Flooding','Sundarbans Shield','Salt Water Ingress'] },
-];
+const fg=$('fishGrid');
+FISHES.forEach(f=>{fg.innerHTML+=`<div class="fish-card"><span class="fish-icon">${f.icon}</span><div class="fish-name">${f.name}</div><div class="fish-zone">${f.zone}</div><div class="fish-badge" style="background:${f.sc}18;color:${f.sc}">${f.status}</div><div style="font-size:0.62rem;color:var(--muted);margin-top:0.5rem;line-height:1.5">${f.note}</div></div>`;});
 
-// ─────────────────────────────────────────
-// RENDER FUNCTIONS
-// ─────────────────────────────────────────
-const $ = id => document.getElementById(id);
+const db=$('depthBars');
+DEPTHS.forEach(d=>{db.innerHTML+=`<div class="depth-row"><div class="depth-loc">${d.loc}</div><div class="depth-bar-bg"><div class="depth-bar-fill" style="width:${d.bar}%;background:${d.col}">${d.dry}</div></div><div class="depth-unit">${d.dry}</div></div>`;});
 
-// TIMELINE
-const tl = $('timeline');
-const dotCol = {clean:'#00e89a',moderate:'#f9ca24',high:'#fd9644',critical:'#ff4757'};
-const lbl = {clean:'Clean',moderate:'Moderate',high:'High Pollution',critical:'Critical ⚠'};
-const cardBg = {clean:'rgba(0,232,154,0.04)',moderate:'rgba(249,202,36,0.04)',high:'rgba(253,150,68,0.06)',critical:'rgba(255,71,87,0.08)'};
-const cardBorder = {clean:'rgba(0,232,154,0.15)',moderate:'rgba(249,202,36,0.15)',high:'rgba(253,150,68,0.2)',critical:'rgba(255,71,87,0.2)'};
+const fl=$('floodList');
+FLOODS.forEach(f=>{const tags=f.tags.map(t=>`<span class="flood-tag">${t}</span>`).join('');fl.innerHTML+=`<div class="flood-item"><div class="flood-area"><span class="severity-pill ${f.sevc}">${f.sev}</span>⚠ ${f.area}</div><div class="flood-desc">${f.desc}</div><div class="flood-tags">${tags}</div></div>`;});
 
-CITIES.forEach(c => {
-  const tags = c.tags.map(t=>`<span class="t-tag" style="background:${t.bg};color:${t.c}">${t.t}</span>`).join('');
-  tl.innerHTML += `
-  <div class="t-node">
-    <div class="t-dot" style="background:${dotCol[c.pollution]}"></div>
-    <div class="t-inner" style="background:${cardBg[c.pollution]};border-color:${cardBorder[c.pollution]}">
-      <div class="t-top">
-        <span class="t-name">${c.name}</span>
-        <span class="t-km">km ${c.km}</span>
-      </div>
-      <div class="t-state">${c.state}</div>
-      <div class="t-tags">${tags}</div>
-      <div class="t-desc">${c.desc}</div>
-      <div class="p-bar-wrap">
-        <div class="p-bar-bg"><div class="p-bar-fill" style="width:${c.pct}%;background:${dotCol[c.pollution]}"></div></div>
-        <div class="p-lbl" style="color:${dotCol[c.pollution]}">${lbl[c.pollution]}</div>
-      </div>
-    </div>
-  </div>`;
-});
+function showTab(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));$('tab-'+id).classList.add('active');if(btn)btn.classList.add('active');if(id==='map')renderMap();}
 
-// POLLUTION BARS
-const pb = $('pollutionBars');
-POLLUTION_BARS.forEach(p => {
-  pb.innerHTML += `
-  <div class="poll-row">
-    <div class="poll-loc">${p.loc}</div>
-    <div class="poll-bar-bg">
-      <div class="poll-bar-fill" style="width:${p.pct}%;background:${p.col}">${p.pct}%</div>
-    </div>
-    <div class="poll-val" style="color:${p.col}">${p.lbl}</div>
-  </div>`;
-});
-
-// TRIBUTARIES
-const triList = $('tributaryList');
-const tribPollCol = {Clean:'#00e89a',Moderate:'#f9ca24',High:'#fd9644',Critical:'#ff4757'};
-TRIBUTARIES.forEach(t => {
-  triList.innerHTML += `
-  <div class="trib-item" style="border-left-color:${tribPollCol[t.pollution]||'#00c8ff'}">
-    <div>
-      <div class="trib-name">${t.river}</div>
-      <div class="trib-at">📍 Joins at: ${t.at} &nbsp;·&nbsp; Origin: ${t.origin}</div>
-    </div>
-    <span class="trib-side">${t.side} Bank</span>
-    <div class="trib-note">${t.note}
-      <span style="color:${tribPollCol[t.pollution]||'#00c8ff'};font-size:0.6rem;margin-left:0.5rem">Water Quality: ${t.pollution}</span>
-    </div>
-  </div>`;
-});
-
-// FISH
-const fg = $('fishGrid');
-FISHES.forEach(f => {
-  fg.innerHTML += `
-  <div class="fish-card">
-    <span class="fish-icon">${f.icon}</span>
-    <div class="fish-name">${f.name}</div>
-    <div class="fish-zone">${f.zone}</div>
-    <div class="fish-badge" style="background:${f.sc}18;color:${f.sc}">${f.status}</div>
-    <div style="font-size:0.62rem;color:var(--muted);margin-top:0.5rem;line-height:1.5">${f.note}</div>
-  </div>`;
-});
-
-// DEPTH
-const db = $('depthBars');
-DEPTHS.forEach(d => {
-  db.innerHTML += `
-  <div class="depth-row">
-    <div class="depth-loc">${d.loc}</div>
-    <div class="depth-bar-bg">
-      <div class="depth-bar-fill" style="width:${d.bar}%;background:${d.col}">${d.dry}</div>
-    </div>
-    <div class="depth-unit">${d.dry}</div>
-  </div>`;
-});
-
-// FLOOD
-const fl = $('floodList');
-FLOODS.forEach(f => {
-  const tags = f.tags.map(t=>`<span class="flood-tag">${t}</span>`).join('');
-  fl.innerHTML += `
-  <div class="flood-item">
-    <div class="flood-area">
-      <span class="severity-pill ${f.sevc}">${f.sev}</span>
-      ⚠ ${f.area}
-    </div>
-    <div class="flood-desc">${f.desc}</div>
-    <div class="flood-tags">${tags}</div>
-  </div>`;
-});
-
-// ─────────────────────────────────────────
-// TAB SWITCHER
-// ─────────────────────────────────────────
-function showTab(id) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  $('tab-' + id).classList.add('active');
-  event.target.classList.add('active');
-  if (id === 'map') renderMap();
-}
-
-// ─────────────────────────────────────────
-// D3 MAP
-// ─────────────────────────────────────────
-let mapRendered = false;
-
-function renderMap() {
-  if (mapRendered) return;
-  mapRendered = true;
-
-  const svg = d3.select('#map-svg');
-  const W = 960, H = 680;
-
-  // Background
-  svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#04090f');
-
-  // Grid lines
-  for (let x = 0; x < W; x += 40) svg.append('line').attr('x1', x).attr('y1', 0).attr('x2', x).attr('y2', H).attr('stroke', 'rgba(0,200,255,0.04)').attr('stroke-width', 1);
-  for (let y = 0; y < H; y += 40) svg.append('line').attr('x1', 0).attr('y1', y).attr('x2', W).attr('y2', y).attr('stroke', 'rgba(0,200,255,0.04)').attr('stroke-width', 1);
-
-  const projection = d3.geoMercator()
-    .center([82, 26])
-    .scale(1350)
-    .translate([W / 2, H / 2]);
-
-  const path = d3.geoPath().projection(projection);
-  const tt = $('tooltip');
-
-  // State colors for states Ganga flows through
-  const stateFlowColors = {
-    'Uttarakhand': 'rgba(52,152,219,0.18)',
-    'Uttar Pradesh': 'rgba(155,89,182,0.15)',
-    'Bihar': 'rgba(243,156,18,0.15)',
-    'Jharkhand': 'rgba(231,76,60,0.13)',
-    'West Bengal': 'rgba(39,174,96,0.15)',
-  };
-  const stateStroke = {
-    'Uttarakhand': 'rgba(52,152,219,0.6)',
-    'Uttar Pradesh': 'rgba(155,89,182,0.5)',
-    'Bihar': 'rgba(243,156,18,0.5)',
-    'Jharkhand': 'rgba(231,76,60,0.5)',
-    'West Bengal': 'rgba(39,174,96,0.5)',
-  };
-
-  d3.json('https://cdn.jsdelivr.net/npm/datamaps@0.5.10/src/js/data/ind.topo.json').then(india => {
-    const features = topojson.feature(india, india.objects.ind).features;
-
-    svg.selectAll('.state')
-      .data(features)
-      .join('path')
-      .attr('class', 'state')
-      .attr('d', path)
-      .attr('fill', d => stateFlowColors[d.properties.name] || 'rgba(255,255,255,0.03)')
-      .attr('stroke', d => stateStroke[d.properties.name] || 'rgba(100,200,255,0.08)')
-      .attr('stroke-width', d => stateFlowColors[d.properties.name] ? 1.5 : 0.5);
-
-    // State labels for Ganga states
-    const stateLabels = [
-      {name:'Uttarakhand', lat:30.1, lng:79.0},
-      {name:'Uttar Pradesh', lat:27.0, lng:80.5},
-      {name:'Bihar', lat:25.7, lng:85.5},
-      {name:'Jharkhand', lat:23.6, lng:85.4},
-      {name:'West Bengal', lat:23.5, lng:87.5},
-    ];
-    stateLabels.forEach(s => {
-      const [x, y] = projection([s.lng, s.lat]);
-      svg.append('text')
-        .attr('x', x).attr('y', y)
-        .attr('text-anchor', 'middle')
-        .attr('font-family', 'Space Mono, monospace')
-        .attr('font-size', '9px')
-        .attr('fill', 'rgba(200,232,248,0.5)')
-        .attr('letter-spacing', '1px')
-        .text(s.name.toUpperCase());
-    });
-
-  }).catch(() => {
-    // Fallback if topo fails: just draw a simple India outline box
-    svg.append('text').attr('x', W/2).attr('y', H/2).attr('text-anchor','middle')
-      .attr('fill','rgba(100,200,255,0.4)').attr('font-size','13px')
-      .text('Map topology loading... try refreshing');
-  });
-
-  // ── GANGA RIVER PATH (approximate lat/lng waypoints) ──
-  const gangaPath = [
-    [78.94, 30.99], // Gangotri
-    [78.60, 30.15], // Devprayag
-    [78.27, 30.09], // Rishikesh
-    [78.16, 29.95], // Haridwar
-    [78.13, 29.37], // Bijnor
-    [79.00, 28.20], // Farrukhabad area
-    [79.91, 27.05], // Kannauj
-    [80.35, 26.47], // Kanpur
-    [81.88, 25.43], // Prayagraj
-    [83.01, 25.32], // Varanasi
-    [83.58, 25.58], // Ghazipur
-    [84.40, 25.62], // Ballia
-    [85.12, 25.60], // Patna
-    [86.98, 25.25], // Bhagalpur
-    [87.25, 25.18], // Sahibganj (Jharkhand)
-    [87.92, 24.81], // Farakka
-    [88.27, 24.18], // Murshidabad
-    [88.35, 23.55], // Nabadwip
-    [88.36, 22.57], // Kolkata
-    [88.60, 22.10], // Diamond Harbour
-    [88.90, 21.95], // Sundarbans
-  ];
-
-  const gangaLine = d3.line()
-    .x(d => projection(d)[0])
-    .y(d => projection(d)[1])
-    .curve(d3.curveCatmullRom.alpha(0.5));
-
-  // Glow effect (wider)
-  svg.append('path')
-    .datum(gangaPath)
-    .attr('d', gangaLine)
-    .attr('fill', 'none')
-    .attr('stroke', 'rgba(0,200,255,0.12)')
-    .attr('stroke-width', 14);
-
-  // Main river line
-  svg.append('path')
-    .datum(gangaPath)
-    .attr('d', gangaLine)
-    .attr('fill', 'none')
-    .attr('stroke', 'url(#riverGrad)')
-    .attr('stroke-width', 3.5)
-    .attr('stroke-linecap', 'round');
-
-  // Gradient def
-  const defs = svg.append('defs');
-  const grad = defs.append('linearGradient')
-    .attr('id', 'riverGrad')
-    .attr('gradientUnits', 'userSpaceOnUse')
-    .attr('x1', projection([78.94,30.99])[0]).attr('y1', projection([78.94,30.99])[1])
-    .attr('x2', projection([88.90,21.95])[0]).attr('y2', projection([88.90,21.95])[1]);
+let mapRendered=false;
+function renderMap(){
+  if(mapRendered)return;
+  mapRendered=true;
+  const W=960,H=680;
+  const svg=d3.select('#map-svg');
+  svg.append('rect').attr('width',W).attr('height',H).attr('fill','#04090f');
+  for(let x=0;x<W;x+=40)svg.append('line').attr('x1',x).attr('y1',0).attr('x2',x).attr('y2',H).attr('stroke','rgba(0,200,255,0.04)').attr('stroke-width',1);
+  for(let y=0;y<H;y+=40)svg.append('line').attr('x1',0).attr('y1',y).attr('x2',W).attr('y2',y).attr('stroke','rgba(0,200,255,0.04)').attr('stroke-width',1);
+  const g=svg.append('g').attr('id','zoomG');
+  const projection=d3.geoMercator().center([82,26]).scale(1350).translate([W/2,H/2]);
+  const path=d3.geoPath().projection(projection);
+  const tt=$('tooltip');
+  const stateFC={'Uttarakhand':'rgba(52,152,219,0.18)','Uttar Pradesh':'rgba(155,89,182,0.15)','Bihar':'rgba(243,156,18,0.15)','Jharkhand':'rgba(231,76,60,0.13)','West Bengal':'rgba(39,174,96,0.15)'};
+  const stateSt={'Uttarakhand':'rgba(52,152,219,0.6)','Uttar Pradesh':'rgba(155,89,182,0.5)','Bihar':'rgba(243,156,18,0.5)','Jharkhand':'rgba(231,76,60,0.5)','West Bengal':'rgba(39,174,96,0.5)'};
+  d3.json('https://cdn.jsdelivr.net/npm/datamaps@0.5.10/src/js/data/ind.topo.json').then(india=>{
+    const features=topojson.feature(india,india.objects.ind).features;
+    g.selectAll('.state').data(features).join('path').attr('class','state').attr('d',path).attr('fill',d=>stateFC[d.properties.name]||'rgba(255,255,255,0.03)').attr('stroke',d=>stateSt[d.properties.name]||'rgba(100,200,255,0.08)').attr('stroke-width',d=>stateFC[d.properties.name]?1.5:0.5);
+    [{name:'Uttarakhand',lat:30.1,lng:79.0},{name:'Uttar Pradesh',lat:27.0,lng:80.5},{name:'Bihar',lat:25.7,lng:85.5},{name:'Jharkhand',lat:23.6,lng:85.4},{name:'West Bengal',lat:23.5,lng:87.5}].forEach(s=>{const[x,y]=projection([s.lng,s.lat]);g.append('text').attr('x',x).attr('y',y).attr('text-anchor','middle').attr('font-family','Space Mono,monospace').attr('font-size','9px').attr('fill','rgba(200,232,248,0.5)').attr('letter-spacing','1px').text(s.name.toUpperCase());});
+  }).catch(()=>{});
+  const gangaPath=[[78.94,30.99],[78.60,30.15],[78.27,30.09],[78.16,29.95],[78.13,29.37],[79.00,28.20],[79.91,27.05],[80.35,26.47],[81.88,25.43],[83.01,25.32],[83.58,25.58],[84.40,25.62],[85.12,25.60],[86.98,25.25],[87.25,25.18],[87.92,24.81],[88.27,24.18],[88.35,23.55],[88.36,22.57],[88.60,22.10],[88.90,21.95]];
+  const gangaLine=d3.line().x(d=>projection(d)[0]).y(d=>projection(d)[1]).curve(d3.curveCatmullRom.alpha(0.5));
+  const defs=svg.append('defs');
+  const grad=defs.append('linearGradient').attr('id','riverGrad').attr('gradientUnits','userSpaceOnUse').attr('x1',projection([78.94,30.99])[0]).attr('y1',projection([78.94,30.99])[1]).attr('x2',projection([88.90,21.95])[0]).attr('y2',projection([88.90,21.95])[1]);
   grad.append('stop').attr('offset','0%').attr('stop-color','#00e89a');
   grad.append('stop').attr('offset','35%').attr('stop-color','#00c8ff');
   grad.append('stop').attr('offset','65%').attr('stop-color','#fd9644');
   grad.append('stop').attr('offset','85%').attr('stop-color','#ff4757');
   grad.append('stop').attr('offset','100%').attr('stop-color','#00e89a');
-
-  // Tributary lines (simplified)
-  const tribLines = [
-    { pts: [[78.60,30.15],[79.0,30.5],[79.5,30.8]], name:'Alaknanda' },
-    { pts: [[79.91,27.05],[79.5,27.8],[79.2,28.4]], name:'Ramganga' },
-    { pts: [[81.88,25.43],[81.9,25.0],[82.1,24.6],[82.6,24.1]], name:'Yamuna (part)' },
-    { pts: [[85.12,25.60],[84.9,26.1],[85.2,26.8]], name:'Gandak' },
-    { pts: [[85.12,25.60],[84.7,25.4],[84.3,25.1]], name:'Son' },
-    { pts: [[85.12,25.60],[85.5,26.2],[86.5,26.8]], name:'Kosi' },
-  ];
-  tribLines.forEach(t => {
-    svg.append('path')
-      .datum(t.pts)
-      .attr('d', gangaLine)
-      .attr('fill','none')
-      .attr('stroke','rgba(90,138,170,0.5)')
-      .attr('stroke-width', 1.5)
-      .attr('stroke-dasharray','4,3');
+  g.append('path').datum(gangaPath).attr('d',gangaLine).attr('fill','none').attr('stroke','rgba(0,200,255,0.12)').attr('stroke-width',14);
+  g.append('path').datum(gangaPath).attr('d',gangaLine).attr('fill','none').attr('stroke','url(#riverGrad)').attr('stroke-width',3.5).attr('stroke-linecap','round');
+  [[{pts:[[78.60,30.15],[79.0,30.5],[79.5,30.8]]},{pts:[[79.91,27.05],[79.5,27.8],[79.2,28.4]]},{pts:[[81.88,25.43],[81.9,25.0],[82.1,24.6],[82.6,24.1]]},{pts:[[85.12,25.60],[84.9,26.1],[85.2,26.8]]},{pts:[[85.12,25.60],[84.7,25.4],[84.3,25.1]]},{pts:[[85.12,25.60],[85.5,26.2],[86.5,26.8]]}]].flat().forEach(t=>{g.append('path').datum(t.pts).attr('d',gangaLine).attr('fill','none').attr('stroke','rgba(90,138,170,0.5)').attr('stroke-width',1.5).attr('stroke-dasharray','4,3');});
+  const pollColor={clean:'#00e89a',moderate:'#f9ca24',high:'#fd9644',critical:'#ff4757'};
+  CITIES.forEach(c=>{
+    const[cx,cy]=projection([c.lng,c.lat]);
+    g.append('circle').attr('cx',cx).attr('cy',cy).attr('r',12).attr('fill','none').attr('stroke',pollColor[c.pollution]).attr('stroke-width',0.5).attr('opacity',0.3);
+    g.append('circle').attr('cx',cx).attr('cy',cy).attr('r',7).attr('fill','none').attr('stroke',pollColor[c.pollution]).attr('stroke-width',1).attr('opacity',0.6);
+    const dot=g.append('circle').attr('cx',cx).attr('cy',cy).attr('r',4.5).attr('fill',pollColor[c.pollution]).attr('stroke','#04090f').attr('stroke-width',1.5).style('cursor','pointer');
+    g.append('text').attr('x',cx+10).attr('y',cy-8).attr('font-family','Space Mono,monospace').attr('font-size',c.name.length>10?'8px':'9px').attr('fill','#c8e8f8').attr('opacity',0.85).text(c.name);
+    dot.on('mousemove',function(event){
+      const pL={clean:'Very Clean',moderate:'Moderate',high:'High',critical:'Critical ⚠'};
+      const bB={clean:'rgba(0,232,154,0.2)',moderate:'rgba(249,202,36,0.2)',high:'rgba(253,150,68,0.2)',critical:'rgba(255,71,87,0.2)'};
+      $('tt-name').textContent=c.name;
+      $('tt-badge').innerHTML=`<span class="tooltip-badge" style="background:${bB[c.pollution]};color:${pollColor[c.pollution]}">${pL[c.pollution]}</span>`;
+      $('tt-body').innerHTML=`<div style="color:var(--muted);font-size:0.62rem;margin-bottom:0.4rem">${c.state} · km ${c.km}</div><div class="tt-row"><span class="tt-key">Depth</span><span class="tt-val">${c.depth}</span></div><div class="tt-row"><span class="tt-key">Width</span><span class="tt-val">${c.width}</span></div><div class="tt-row"><span class="tt-key">Fish</span><span class="tt-val">${c.fish}</span></div><div style="color:var(--muted);font-size:0.65rem;margin-top:0.5rem;line-height:1.5">${c.desc.substring(0,120)}...</div>`;
+      tt.style.display='block';tt.style.left=(event.clientX+16)+'px';tt.style.top=(event.clientY-20)+'px';
+    }).on('mouseleave',()=>{tt.style.display='none';});
+    dot.on('click',function(){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));$('tab-journey').classList.add('active');document.querySelectorAll('.nav-btn')[1].classList.add('active');setTimeout(()=>{document.querySelectorAll('.t-node').forEach((n,i)=>{if(CITIES[i]&&CITIES[i].name===c.name)n.scrollIntoView({behavior:'smooth',block:'center'});});},100);});
   });
-
-  // ── CITY DOTS ──
-  const pollColor = {clean:'#00e89a', moderate:'#f9ca24', high:'#fd9644', critical:'#ff4757'};
-
-  CITIES.forEach(c => {
-    const [cx, cy] = projection([c.lng, c.lat]);
-
-    // Pulse ring
-    svg.append('circle')
-      .attr('cx', cx).attr('cy', cy).attr('r', 12)
-      .attr('fill', 'none')
-      .attr('stroke', pollColor[c.pollution])
-      .attr('stroke-width', 0.5)
-      .attr('opacity', 0.3);
-
-    // Outer ring
-    svg.append('circle')
-      .attr('cx', cx).attr('cy', cy).attr('r', 7)
-      .attr('fill', 'none')
-      .attr('stroke', pollColor[c.pollution])
-      .attr('stroke-width', 1)
-      .attr('opacity', 0.6);
-
-    // Inner dot
-    const dot = svg.append('circle')
-      .attr('cx', cx).attr('cy', cy).attr('r', 4.5)
-      .attr('fill', pollColor[c.pollution])
-      .attr('stroke', '#04090f')
-      .attr('stroke-width', 1.5)
-      .style('cursor', 'pointer');
-
-    // Label
-    const lx = cx + 10, ly = cy - 8;
-    svg.append('text')
-      .attr('x', lx).attr('y', ly)
-      .attr('font-family', 'Space Mono, monospace')
-      .attr('font-size', c.name.length > 10 ? '8px' : '9px')
-      .attr('fill', '#c8e8f8')
-      .attr('opacity', 0.85)
-      .text(c.name);
-
-    // Tooltip hover
-    dot.on('mousemove', function(event) {
-      const pollLabels = {clean:'Very Clean',moderate:'Moderate',high:'High',critical:'Critical ⚠'};
-      const badgeBg = {clean:'rgba(0,232,154,0.2)',moderate:'rgba(249,202,36,0.2)',high:'rgba(253,150,68,0.2)',critical:'rgba(255,71,87,0.2)'};
-      $('tt-name').textContent = c.name;
-      $('tt-badge').innerHTML = `<span class="tooltip-badge" style="background:${badgeBg[c.pollution]};color:${pollColor[c.pollution]}">${pollLabels[c.pollution]}</span>`;
-      $('tt-body').innerHTML = `
-        <div style="color:var(--muted);font-size:0.62rem;margin-bottom:0.4rem">${c.state} &nbsp;·&nbsp; km ${c.km}</div>
-        <div class="tt-row"><span class="tt-key">Depth (dry)</span><span class="tt-val">${c.depth}</span></div>
-        <div class="tt-row"><span class="tt-key">Width</span><span class="tt-val">${c.width}</span></div>
-        <div class="tt-row"><span class="tt-key">Fish</span><span class="tt-val">${c.fish}</span></div>
-        <div style="color:var(--muted);font-size:0.65rem;margin-top:0.5rem;line-height:1.5">${c.desc.substring(0,120)}...</div>`;
-      tt.style.display = 'block';
-      tt.style.left = (event.clientX + 16) + 'px';
-      tt.style.top = (event.clientY - 20) + 'px';
-    }).on('mouseleave', () => { tt.style.display = 'none'; });
-
-    dot.on('click', function() {
-      // Switch to journey tab and highlight
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      $('tab-journey').classList.add('active');
-      document.querySelectorAll('.nav-btn')[1].classList.add('active');
-      setTimeout(() => {
-        const nodes = document.querySelectorAll('.t-node');
-        nodes.forEach((n, i) => { if (CITIES[i] && CITIES[i].name === c.name) n.scrollIntoView({behavior:'smooth', block:'center'}); });
-      }, 100);
-    });
+  g.append('text').attr('x',20).attr('y',H-20).attr('font-family','Space Mono,monospace').attr('font-size','10px').attr('fill','rgba(0,200,255,0.3)').attr('letter-spacing','2px').text('GANGA RIVER EXPLORER');
+  const zoom=d3.zoom().scaleExtent([1,10]).translateExtent([[0,0],[W,H]]).on('zoom',(event)=>{g.attr('transform',event.transform);});
+  svg.call(zoom);
+  [[10,'+'],[48,'−'],[86,'↺']].forEach(([y,label],i)=>{
+    const actions=[()=>svg.transition().duration(300).call(zoom.scaleBy,1.6),()=>svg.transition().duration(300).call(zoom.scaleBy,0.625),()=>svg.transition().duration(500).call(zoom.transform,d3.zoomIdentity)];
+    svg.append('rect').attr('x',W-46).attr('y',y).attr('width',32).attr('height',32).attr('fill','rgba(4,9,15,0.85)').attr('stroke','rgba(0,200,255,0.5)').attr('rx',6).style('cursor','pointer').on('click',actions[i]);
+    svg.append('text').attr('x',W-30).attr('y',y+22).attr('text-anchor','middle').attr('fill','#00c8ff').attr('font-size',i===2?'16px':'20px').attr('font-family','monospace').attr('pointer-events','none').text(label);
   });
-
-  // Title watermark
-  svg.append('text')
-    .attr('x', 20).attr('y', H - 20)
-    .attr('font-family', 'Space Mono, monospace').attr('font-size', '10px')
-    .attr('fill', 'rgba(0,200,255,0.3)').attr('letter-spacing', '2px')
-    .text('GANGA RIVER EXPLORER · signed.emem.dev');
 }
-
-// Render map on load
 renderMap();
 </script>
 </body>
